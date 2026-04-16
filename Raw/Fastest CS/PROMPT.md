@@ -1,0 +1,1 @@
+"Claude, please research and find the fastest {datastructures} implementation in all of computer science/programming."

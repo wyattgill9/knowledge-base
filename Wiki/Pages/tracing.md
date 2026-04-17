@@ -26,6 +26,7 @@ This means zero-cost debug instrumentation: leave `tracing::debug!` calls in pro
 ## Ecosystem
 
 - **tracing-subscriber** — formatting, filtering, and layer composition for output.
+- **[[tracing-error]]** — enriches errors with span context via `SpanTrace`. In async code, SpanTraces show the logical application hierarchy rather than executor frames, making them far more useful than backtraces. Integrates with [[color-eyre]] and [[error-stack]].
 - **[[tokio-console]]** — real-time async task debugging powered by tracing data.
 - **[[fastrace]]** — alternative for library authors who want zero overhead when tracing is completely disabled (tracing still pays the atomic load even when no subscriber is attached; fastrace compiles out entirely).
 

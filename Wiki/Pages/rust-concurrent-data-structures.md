@@ -15,11 +15,11 @@ An overview of the concurrent maps and channels available beyond `std` in the Ru
 
 ## Concurrent HashMaps
 
-| Crate | Strategy | Best for |
-|---|---|---|
-| [[papaya]] | Lock-free reads, novel reclamation | Read-heavy caches, async-safe, predictable latency |
-| [[dashmap]] | Sharded RwLocks | Best write throughput, familiar API, 173M+ downloads |
-| [[scc]] | Aggressive bucket-level locking | Extreme write contention |
+| Crate       | Strategy                           | Best for                                             |
+| ----------- | ---------------------------------- | ---------------------------------------------------- |
+| [[papaya]]  | Lock-free reads, novel reclamation | Read-heavy caches, async-safe, predictable latency   |
+| [[dashmap]] | Sharded RwLocks                    | Best write throughput, familiar API, 173M+ downloads |
+| [[scc]]     | Aggressive bucket-level locking    | Extreme write contention                             |
 
 **Decision rule:** if your map is read-heavy and used in async code, use papaya. If write-heavy or sync-only, use dashmap. If write contention is extreme, benchmark scc.
 

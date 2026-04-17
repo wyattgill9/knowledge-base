@@ -7,7 +7,8 @@ tags:
 sources:
   - "Raw/Rust/The blazingly fast Rust crate stack for 2025–2026.md"
   - "Raw/Rust/Shard-per-core Rust runtimes - Monoio, Compio, and Glommio compared.md"
-last_updated: 2026-04-15
+  - "Raw/Rust/Modern Rust - the definitive 2023–2026 feature and idiom guide.md"
+last_updated: 2026-04-16
 ---
 
 # Tokio
@@ -29,6 +30,28 @@ The "poor person's thread-per-core" pattern: run N independent `tokio::runtime::
 - **Container blocker** — Docker/containerd block io_uring by default after security concerns.
 
 Tokio's readiness-based model (epoll) avoids all of these. For file I/O, Tokio delegates to a blocking thread pool (up to 512 threads), which is 29x slower than io_uring for random reads — but adequate for most workloads.
+
+## Structured concurrency with JoinSet
+
+`tokio::task::JoinSet` is the modern pattern for dynamic task groups — spawn tasks, collect results, and get automatic cancellation on drop:
+
+```rust
+use tokio::task::JoinSet;
+
+async fn fetch_all(urls: Vec<String>) -> Vec<String> {
+    let mut set = JoinSet::new();
+    for url in urls {
+        set.spawn(async move { reqwest::get(&url).await.unwrap().text().await.unwrap() });
+    }
+    let mut results = Vec::new();
+    while let Some(res) = set.join_next().await {
+        results.push(res.unwrap());
+    }
+    results // JoinSet cancels remaining tasks on drop
+}
+```
+
+Use `tokio::join!` for fixed concurrency and `select!` for racing. JoinSet's drop-cancellation provides structured concurrency guarantees — no leaked tasks. With [[rust-async-evolution|async fn in traits]] (1.75) and [[rust-async-evolution|async closures]] (1.85), Tokio-based code is now dramatically less boilerplatey.
 
 ## Ecosystem integration
 

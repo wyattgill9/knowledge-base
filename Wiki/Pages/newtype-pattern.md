@@ -5,7 +5,8 @@ tags:
   - design-patterns
 sources:
   - "Raw/Rust/Type Driven Development in Rust.md"
-last_updated: 2026-04-16
+  - "Raw/Rust/What A+ Rust design actually looks like.md"
+last_updated: 2026-04-17
 ---
 
 # Newtype Pattern
@@ -39,7 +40,7 @@ The main cost is implementing `Display`, `Debug`, `Clone`, `PartialEq`, and othe
 
 - **[[derive-more]]** — derives `From`, `Into`, `Display`, `Deref`, and more for newtypes
 - **[[nutype]]** — proc macro that generates validated newtypes with sanitization rules automatically (2.7M+ downloads)
-- **`Deref` / `AsRef`** — provide transparent access to the inner type when appropriate (use carefully — too much transparency defeats the purpose)
+- **`Deref` / `AsRef`** — provide transparent access to the inner type when appropriate. **Critical rule**: do *not* implement `Deref` for safety newtypes — if the newtype exists to restrict an API, `Deref` would bypass the restriction entirely. `Deref` is appropriate only for smart pointer-like wrappers that extend capabilities while preserving the inner type's full surface
 
 ## When to use newtypes
 

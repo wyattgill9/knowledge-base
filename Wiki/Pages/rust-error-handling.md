@@ -7,7 +7,8 @@ sources:
   - "Raw/Rust/The blazingly fast Rust crate stack for 2025–2026.md"
   - "Raw/Rust/Comparative Deep Research on Rust Error-Handling Crates, Including Snafu.md"
   - "Raw/Rust/Modern Rust - the definitive 2023–2026 feature and idiom guide.md"
-last_updated: 2026-04-16
+  - "Raw/Rust/What A+ Rust design actually looks like.md"
+last_updated: 2026-04-17
 ---
 
 # Rust Error Handling
@@ -50,4 +51,14 @@ Neither thiserror nor snafu has meaningful runtime overhead. The choice is purel
 
 ## Recommendation
 
-For most projects: [[thiserror]] at library boundaries, [[anyhow]] for application plumbing. Switch to [[snafu]] in large workspaces where error discipline matters. Add [[miette]] for compiler-style UX, [[tracing-error]] for async observability, or [[error-stack]] when you need structured attachments on the error path.
+## When to panic vs return Result
+
+Return `Result` as the default. Panic only for **contract violations** (bugs in the caller, not expected conditions), in tests, and for logically infallible operations like `"127.0.0.1".parse::<IpAddr>().expect("hardcoded IP")`. Never panic in `Drop` — if `drop()` panics during stack unwinding from another panic, the program aborts.
+
+## Error formatting conventions
+
+RisingWave's production guidelines prevent error message chaos in large codebases: display messages should be **lowercase, no trailing punctuation, describing only themselves** — never embedding their source. Error reports walk the `.source()` chain to compose full messages. Each layer adds only its own context, preventing the anti-pattern of `format!("failed to do X: {}", source)` which duplicates information when the chain is printed.
+
+## Recommendation
+
+For most projects: [[thiserror]] at library boundaries, [[anyhow]] for application plumbing. Switch to [[snafu]] in large workspaces where error discipline matters. Add [[miette]] for compiler-style UX, [[tracing-error]] for async observability, or [[error-stack]] when you need structured attachments on the error path. See [[expert-rust-design]] for how error handling fits into the broader design philosophy.

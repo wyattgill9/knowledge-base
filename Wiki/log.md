@@ -1,5 +1,33 @@
 # Log
 
+## [2026-04-17] ingest | What A+ Rust design actually looks like
+- Source: `Raw/Rust/What A+ Rust design actually looks like.md`
+- Created (13 pages):
+  - [[expert-rust-design]] (source summary — mental model, compile-time techniques, dimensions of expert design)
+  - [[rust-api-design]] — accept broad/return specific, de-generification, builder tiers, extension traits
+  - [[rust-allocation-patterns]] — borrow → Cow → owned hierarchy, niche optimization, zero-cost caveats
+  - [[serde-architecture]] — zero-allocation data model via traits, dual extensibility
+  - [[axum-architecture]] — tower::Service, extractors, IntoResponse composability
+  - [[rust-concurrency-patterns]] — Arc<Mutex> as last resort, data-oriented splitting, async task patterns
+  - [[rust-abstraction-boundaries]] — enums vs generics vs trait objects, macros as last resort
+  - [[facade-crate-pattern]] — workspace of specialized crates behind curated public API
+  - [[rust-testing-patterns]] — layered testing and CI lint enforcement
+  - [[bevy]] (stub) — data-driven game engine, 40+ crate facade
+  - [[heapless]] (stub) — stack-allocated fixed-capacity collections for no_std
+  - [[itertools]] (stub) — canonical Iterator extension trait crate
+  - [[smallvec]] (stub) — stack-inline Vec with heap fallback
+- Updated (4 pages):
+  - [[newtype-pattern]] — added critical Deref warning for safety newtypes, added source
+  - [[typestate-pattern]] — added source reference
+  - [[type-driven-development]] — added source, cross-reference to expert-rust-design
+  - [[rust-error-handling]] — added panic vs Result guidelines, RisingWave error formatting conventions, added source
+- Index: added 13 new entries
+- New wikilinks: [[expert-rust-design]], [[rust-api-design]], [[rust-allocation-patterns]], [[serde-architecture]], [[axum-architecture]], [[rust-concurrency-patterns]], [[rust-abstraction-boundaries]], [[facade-crate-pattern]], [[rust-testing-patterns]], [[bevy]], [[heapless]], [[itertools]], [[smallvec]], [[bon]]
+- Open questions:
+  - How does ripgrep's crate architecture compare to Bevy's in terms of inter-crate communication patterns?
+  - What are the compile-time costs of de-generification vs full monomorphization in practice?
+  - How do axum's extractors compare to other Rust web frameworks (actix-web, poem) in terms of type safety?
+
 ## [2026-04-16] ingest | Type Driven Development in Rust
 - Source: `Raw/Rust/Type Driven Development in Rust.md`
 - Created (7 pages):

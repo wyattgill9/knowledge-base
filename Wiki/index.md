@@ -7,8 +7,10 @@
 | [[apache-iggy]] | Message streaming system; most documented production migration to shard-per-core (Compio) | rust, performance, architecture |
 | [[ariadne]] | Pretty diagnostic rendering with source spans and fine-grained label control | rust, error-handling, crate |
 | [[auto-enums]] | Auto-generate hidden dispatch enums for functions returning different concrete types | rust, design-patterns, crate |
+| [[axum-architecture]] | How axum uses tower::Service, extractors, and IntoResponse for trait-driven web framework design | rust, architecture, design-patterns |
 | [[bitcode]] | Fastest traditional serialization crate with smallest output size, complementary to rkyv | rust, performance, data-structures, crate |
 | [[bitflags]] | C-style bitflag sets via macro; ~1.1B downloads, used by the Rust compiler | rust, data-structures, crate |
+| [[bevy]] | Data-driven game engine with 40+ internal crates behind a facade; extreme example of workspace modularity | rust, architecture, crate |
 | [[blazingly-fast-rust-crate-stack]] | Survey of the high-performance Rust crate ecosystem for 2025–2026 | rust, performance, crate, architecture |
 | [[bolero]] | Unified fuzzing and property testing under a single API | rust, crate |
 | [[bumpalo]] | Bump allocator for phase-oriented work with ~2 ns allocation and instant bulk deallocation | rust, performance, data-structures, crate |
@@ -32,11 +34,13 @@
 | [[divan]] | Modern benchmarking crate with ergonomic attribute macros and allocation counting | rust, performance, crate |
 | [[either]] | Canonical Either<L, R> sum type with trait delegation | rust, data-structures, crate |
 | [[enum-as-inner]] | Derive as_*(), into_*(), is_*() accessor methods for enum variants | rust, data-structures, crate |
+| [[expert-rust-design]] | What separates A+ Rust from average: compile-time invariants, API design, crate architecture, knowing when to stop | rust, architecture, design-patterns |
 | [[enum-dispatch]] | Static enum dispatch replacing dyn Trait at up to 10x speedup | rust, performance, design-patterns, crate |
 | [[enum-map]] | O(1) array-backed map keyed by enum variants with exhaustive initialization | rust, data-structures, crate |
 | [[error-chain]] | Legacy unmaintained error-handling crate; migrate to thiserror/snafu + anyhow/eyre | rust, error-handling, crate |
 | [[error-stack]] | Stacked Report with typed contexts and arbitrary attachments for observability-first error handling | rust, error-handling, crate |
 | [[eyre]] | Fork of anyhow with swappable report handlers for customizable error presentation | rust, error-handling, crate |
+| [[facade-crate-pattern]] | Workspace of specialized crates behind a curated public API; used by Bevy, Tokio, ripgrep | rust, architecture, design-patterns |
 | [[failure]] | Deprecated error-handling crate (RustSec EOL); migrate to anyhow/thiserror | rust, error-handling, crate |
 | [[foldhash]] | Default hasher for hashbrown 0.15+, replacing ahash with better performance and smaller footprint | rust, performance, data-structures, crate |
 | [[frunk]] | Haskell/Scala-style generic programming: HList, Coproduct, Generic/LabelledGeneric, Validated | rust, type-theory, data-structures, crate |
@@ -44,8 +48,10 @@
 | [[generic-array]] | Arrays generic over length via typenum; foundation for RustCrypto ecosystem | rust, type-theory, data-structures, crate |
 | [[glommio]] | Datadog's io_uring runtime with triple-ring architecture, proportional-share scheduling, and DMA storage I/O; effectively unmaintained | rust, concurrency, performance, crate |
 | [[hashbrown]] | Swiss-table HashMap underlying std::HashMap, now using foldhash as default hasher | rust, data-structures, crate |
+| [[heapless]] | Stack-allocated fixed-capacity collections via const generics for embedded and no_std | rust, performance, data-structures, crate |
 | [[iai-callgrind]] | Deterministic instruction-count benchmarking via Valgrind for CI regression detection | rust, performance, crate |
 | [[io-uring]] | Linux completion-based async I/O with cancellation safety, ecosystem incompatibility, and container security challenges | rust, performance, concurrency, architecture |
+| [[itertools]] | Canonical extension trait crate for Iterator with chunks, tuple_windows, interleave, and dozens more | rust, crate |
 | [[kanal]] | High-throughput message passing channel leading benchmarks at 8–16M msg/sec | rust, concurrency, crate |
 | [[lazy-lock]] | LazyLock/LazyCell replacing lazy_static and once_cell in std (Rust 1.80) | rust, architecture |
 | [[miette]] | Diagnostic-first errors with source spans, labels, help text, and rich rendering for compiler-style UX | rust, error-handling, crate |
@@ -61,9 +67,13 @@
 | [[rapidhash]] | Fastest non-cryptographic hash function overall (4.25 ns geometric mean) | rust, performance, data-structures, crate |
 | [[recursion-schemes]] | Catamorphisms and anamorphisms with stack safety and arena-based traversal for AST-heavy code | rust, data-structures, design-patterns, crate |
 | [[rkyv]] | Zero-copy deserialization framework with ~21 ns access time, uncontested in its niche | rust, performance, data-structures, crate |
+| [[rust-abstraction-boundaries]] | Enums vs generics vs trait objects; macros as last resort; the overengineering trap | rust, architecture, design-patterns |
+| [[rust-allocation-patterns]] | Borrow → Cow → owned hierarchy; niche optimization; buffer reuse; zero-cost abstraction caveats | rust, performance, architecture |
+| [[rust-api-design]] | Accept broad, return specific; de-generification; builder tiers; extension traits; visibility control | rust, design-patterns, architecture |
 | [[rust-2024-edition]] | The largest Rust edition: RPIT capture, explicit unsafe, tighter temporaries, async prelude, resolver 3 | rust, architecture |
 | [[rust-async-evolution]] | Async fn in traits (1.75), async closures (1.85), structured concurrency with JoinSet | rust, concurrency, architecture |
 | [[rust-build-tooling]] | Overview of cargo ecosystem tools for compilation, quality, and supply-chain security | rust, performance, architecture |
+| [[rust-concurrency-patterns]] | Arc<Mutex> as last resort; decision framework; data-oriented state splitting; async task patterns | rust, concurrency, architecture |
 | [[rust-concurrent-data-structures]] | Landscape of concurrent maps and channels beyond std | rust, concurrency, data-structures, architecture |
 | [[rust-enum-crates]] | Survey of 60+ crates extending Rust enums: utilities, dispatch, type-level programming, recursion schemes | rust, data-structures, design-patterns, type-theory |
 | [[rust-error-crate-comparison]] | Comprehensive comparative analysis of the Rust error-handling crate ecosystem with decision matrix | rust, error-handling, architecture |
@@ -71,10 +81,13 @@
 | [[rust-memory-allocators]] | Comparison of mimalloc and jemalloc as global allocator replacements | rust, performance, architecture |
 | [[parse-dont-validate]] | Design principle: return refined types from validation, not booleans — the foundation of type-driven design | rust, type-theory, design-patterns |
 | [[rust-pattern-matching]] | let-else, let-chains, exclusive ranges, exhaustive patterns — modern pattern matching ergonomics | rust, architecture |
+| [[rust-testing-patterns]] | Layered testing (unit, integration, doc, property-based) and CI lint enforcement | rust, architecture, design-patterns |
 | [[rust-workspace-patterns]] | Virtual workspaces with dependency/lint inheritance, feature flag best practices, cross-crate error chaining | rust, architecture |
 | [[rustix]] | Safe syscall bindings with optional linux_raw backend bypassing libc | rust, performance, crate |
 | [[scc]] | Scalable concurrent HashMap optimized for extreme write contention | rust, concurrency, data-structures, crate |
 | [[sealed-traits]] | Closed type sets via private supertrait; essential for typestate and domain modeling | rust, type-theory, design-patterns |
+| [[serde-architecture]] | Serde's zero-allocation data model via traits; dual extensibility without intermediate representations | rust, architecture, design-patterns |
+| [[smallvec]] | Stack-inline Vec up to N elements with heap fallback; avoids allocation on the common small-collection path | rust, performance, data-structures, crate |
 | [[seastar]] | ScyllaDB's C++ shard-per-core framework; ancestor of Glommio and the thread-per-core pattern | cpp, concurrency, performance, architecture |
 | [[shard-per-core-runtimes-compared]] | Detailed comparison of Monoio, Compio, and Glommio with architecture table and decision framework | rust, concurrency, performance, architecture |
 | [[slotmap]] | Generational-index arenas preventing ABA problems with stable handles | rust, data-structures, crate |

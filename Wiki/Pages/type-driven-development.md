@@ -6,7 +6,8 @@ tags:
   - architecture
 sources:
   - "Raw/Rust/Type Driven Development in Rust.md"
-last_updated: 2026-04-16
+  - "Raw/Rust/What A+ Rust design actually looks like.md"
+last_updated: 2026-04-17
 ---
 
 # Type Driven Development
@@ -94,3 +95,5 @@ Encode **structural** invariants (state machines, required fields, protocol comp
 - Alexis King, "Parse, Don't Validate" (2019)
 - Scott Wlaschin, *Domain Modeling Made Functional* (2018)
 - Luca Palmieri, *Zero to Production in Rust* (domain invariants chapter)
+
+See [[expert-rust-design]] for how these techniques manifest across every dimension of production Rust — API surface design, crate architecture, error handling, and performance.

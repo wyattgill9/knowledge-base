@@ -5,7 +5,8 @@ tags:
   - design-patterns
 sources:
   - "Raw/Rust/Type Driven Development in Rust.md"
-last_updated: 2026-04-16
+  - "Raw/Rust/What A+ Rust design actually looks like.md"
+last_updated: 2026-04-17
 ---
 
 # Typestate Pattern

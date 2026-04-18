@@ -1,5 +1,47 @@
 # Log
 
+## [2026-04-17] ingest | The fastest data structures in computer science, benchmarked
+- Source: `Raw/Fastest CS/General.md`
+- Created (19 pages):
+  - [[fastest-data-structures]] (source summary — benchmarked survey of 10 data structure categories)
+  - [[swiss-table]] — SIMD-parallel metadata probing hash map design; boost, abseil, hashbrown, F14
+  - [[b-tree]] — ordered containers beating red-black trees 3–18x; Algorithmica S+ Tree, absl::btree
+  - [[adaptive-radix-tree]] — four adaptive node sizes with SIMD search; HyPer database, HOT trie
+  - [[d-ary-heap]] — d=4 fastest practical heap; pairing heaps for decrease-key; Fibonacci heap debunked
+  - [[pdqsort]] — pattern-defeating quicksort; Rust's sort_unstable; branchless variant
+  - [[ips4o]] — in-place super scalar samplesort; dominant parallel sort from KIT
+  - [[driftsort]] — Rust's stable sort since 2024; derived from glidesort; 4x improvement
+  - [[lmax-disruptor]] — 52 ns/hop ring buffer; mechanical sympathy; 630x over ArrayBlockingQueue
+  - [[binary-fuse-filter]] — surpasses Bloom in space and speed; filter landscape comparison
+  - [[csr-graph]] — compressed sparse row; 40–250x faster than NetworkX; Terrace, CSR++, WebGraph
+  - [[learned-indexes]] — PGM-Index, RadixSpline; 2–3x faster than B-trees for static workloads
+  - [[soa-vs-aos]] — structure of arrays; 1.4–12.7x speedup; SIMD vectorization enabler
+  - [[ecs-pattern]] — ECS architecture; archetype vs sparse-set; Bevy, EnTT, Flecs
+  - [[simdjson]] — 4x RapidJSON, 25x nlohmann; AVX2 JSON parsing at GB/s
+  - [[rcu]] — read-copy-update; zero read-side overhead; Linux kernel, liburcu, crossbeam-epoch
+  - [[cache-oblivious-structures]] — van Emde Boas layout; COLAs 790x faster than B-trees for inserts
+  - [[succinct-data-structures]] — SDSL-lite; bit vectors, wavelet trees, FM-indexes near space minimum
+  - [[fst-finite-state-transducer]] — BurntSushi's fst crate; 1.6B keys; Lucene/Tantivy term dictionaries
+- Created (stubs, 4 pages):
+  - [[simd-programming]] — SIMD as cross-cutting technique in data structure design
+  - [[crossbeam-epoch]] — epoch-based memory reclamation for Rust lock-free structures
+  - [[jumprope]] — world's fastest rope implementation (35–40M edits/sec)
+  - [[champ]] — compressed HAMT powering Clojure/Scala immutable collections
+  - [[concurrent-queues]] — LCRQ, FAAArrayQueue, moodycamel, elimination-backoff stack
+- Updated (6 pages):
+  - [[hashbrown]] — added Swiss Table mechanics, SIMD probing details, C++ landscape context
+  - [[mimalloc]] — added cross-language benchmark data (13% over tcmalloc, 15% lower P99 vs jemalloc)
+  - [[bumpalo]] — added arena allocator performance context, SoA/ECS cross-references
+  - [[cache-coherency]] — added cache-friendly data structure design section with cross-references
+  - [[pulp]] — added SIMD data structure landscape cross-references
+  - [[bevy]] — expanded ECS architecture description with SoA and archetype storage details
+- Index: added 24 new entries, revised 2 descriptions
+- New wikilinks: [[swiss-table]], [[b-tree]], [[adaptive-radix-tree]], [[d-ary-heap]], [[pdqsort]], [[ips4o]], [[driftsort]], [[lmax-disruptor]], [[binary-fuse-filter]], [[csr-graph]], [[learned-indexes]], [[soa-vs-aos]], [[ecs-pattern]], [[simdjson]], [[rcu]], [[cache-oblivious-structures]], [[succinct-data-structures]], [[fst-finite-state-transducer]], [[simd-programming]], [[crossbeam-epoch]], [[jumprope]], [[champ]], [[concurrent-queues]], [[fastest-data-structures]]
+- Open questions:
+  - How do learned indexes perform under distribution shift / concept drift in production?
+  - What's the state of hardware-accelerated data structures beyond SIMD (CXL, processing-in-memory)?
+  - How does the fastest-structure landscape change for WASM and embedded targets with no SIMD?
+
 ## [2026-04-17] ingest | What A+ Rust design actually looks like
 - Source: `Raw/Rust/What A+ Rust design actually looks like.md`
 - Created (13 pages):

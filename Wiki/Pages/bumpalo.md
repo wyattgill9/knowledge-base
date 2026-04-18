@@ -6,7 +6,8 @@ tags:
   - crate
 sources:
   - "Raw/Rust/The blazingly fast Rust crate stack for 2025–2026.md"
-last_updated: 2026-04-15
+  - "Raw/Fastest CS/General.md"
+last_updated: 2026-04-17
 ---
 
 # bumpalo
@@ -21,3 +22,5 @@ A bump allocator maintains a single pointer into a pre-allocated region. Each al
 
 - **[[slotmap]]** — generational-index arenas that prevent ABA problems, with three variants optimized for different access patterns. Better when you need stable handles and individual removal.
 - **[[bytes]]** — `Arc`-backed `Bytes`/`BytesMut` for zero-copy buffer sharing throughout the [[tokio]] ecosystem. Not an arena, but solves a related problem (avoiding copies).
+
+Arena/bump allocators deliver **2–5x speedup** over general malloc for batch allocations (LLVM's `BumpPtrAllocator`, Rust's bumpalo). Combined with [[mimalloc]] as the global allocator, this covers the full allocation performance spectrum. See [[soa-vs-aos]] and [[ecs-pattern]] for how memory layout optimization compounds with allocation optimization.

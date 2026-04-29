@@ -6,7 +6,8 @@ tags:
   - architecture
 sources:
   - "Raw/Rust/The blazingly fast Rust crate stack for 2025–2026.md"
-last_updated: 2026-04-15
+  - "Raw/Fastest CS/The fastest hash map in computer science, 2025.md"
+last_updated: 2026-04-29
 ---
 
 # Rust Concurrent Data Structures
@@ -22,6 +23,8 @@ An overview of the concurrent maps and channels available beyond `std` in the Ru
 | [[scc]]     | Aggressive bucket-level locking    | Extreme write contention                             |
 
 **Decision rule:** if your map is read-heavy and used in async code, use papaya. If write-heavy or sync-only, use dashmap. If write contention is extreme, benchmark scc.
+
+**Where Rust sits globally.** Even Rust's best concurrent maps trail the C++ state-of-the-art at very high thread counts. CMU's [[parlayhash]] hits 1,130 Mops at 128 threads via epoch-based reclamation — roughly 7× Meta's `folly::ConcurrentHashMap` and 39× libcuckoo. None of papaya, dashmap, or scc has been benchmarked at that scale, and none is architected the same way. For services that genuinely run at 64+ threads with hot map access and can step outside Rust, ParlayHash is the headline. For the 4–32 thread range where most Rust services live, the table above stands. See [[fastest-hash-map-2025]] for the broader picture.
 
 ## Message passing channels
 

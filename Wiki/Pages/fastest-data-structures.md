@@ -5,7 +5,8 @@ tags:
   - architecture
 sources:
   - "Raw/Fastest CS/General.md"
-last_updated: 2026-04-17
+  - "Raw/Fastest CS/The fastest hash map in computer science, 2025.md"
+last_updated: 2026-04-29
 ---
 
 # Fastest Data Structures in Computer Science
@@ -16,7 +17,7 @@ A benchmarked survey of the fastest known implementations across ten major data 
 
 | Category | Champion | Key advantage |
 |----------|----------|---------------|
-| Hash maps | [[swiss-table]] variants (`boost::unordered_flat_map`, `absl::flat_hash_map`, [[hashbrown]]) | SIMD-parallel metadata probing, 16 slots in ~3 instructions |
+| Hash maps | [[swiss-table]] variants — [[boost-unordered-flat-map]] leads, [[abseil-flat-hash-map]] close second, [[hashbrown]] in Rust | SIMD-parallel metadata probing, 16 slots in ~3 instructions |
 | Ordered containers | [[b-tree]] (not red-black trees) | 3–18x faster due to cache-line-sized nodes, 6x lower tree height |
 | Tries & strings | [[adaptive-radix-tree]] | Four adaptive node sizes with SIMD search, path compression |
 | Heaps | [[d-ary-heap]] (d=4) | Wider fanout reduces cache misses; 17–30% faster than binary heaps |
@@ -39,7 +40,7 @@ A benchmarked survey of the fastest known implementations across ten major data 
 
 ## The practical default stack
 
-Use `boost::unordered_flat_map` or `absl::flat_hash_map` for C++ hash maps ([[hashbrown]] in Rust). Use [[b-tree]] variants for ordered containers. Use [[d-ary-heap]] for priority queues. Use [[ips4o]] for parallel sorting. Use [[binary-fuse-filter]] for set membership. Use [[csr-graph]] for graph analytics. For concurrent workloads, the [[lmax-disruptor]] pattern and [[rcu]] remain hard to beat. The most exciting frontier — [[learned-indexes]] — is already delivering production wins and may fundamentally reshape database indexing.
+Use [[boost-unordered-flat-map]] or [[abseil-flat-hash-map]] for C++ hash maps ([[hashbrown]] in Rust). Note: in many workloads the *hash function* (foldhash, rapidhash) matters more than the table — see [[fastest-hash-map-2025]]. Use [[b-tree]] variants for ordered containers. Use [[d-ary-heap]] for priority queues. Use [[ips4o]] for parallel sorting. Use [[binary-fuse-filter]] for set membership. Use [[csr-graph]] for graph analytics. For concurrent hash maps at scale, [[parlayhash]] hits 1,130 Mops at 128 threads. For other concurrent workloads, the [[lmax-disruptor]] pattern and [[rcu]] remain hard to beat. The most exciting frontier — [[learned-indexes]] — is already delivering production wins and may fundamentally reshape database indexing.
 
 ## Allocation and memory layout
 
@@ -47,4 +48,4 @@ Use `boost::unordered_flat_map` or `absl::flat_hash_map` for C++ hash maps ([[ha
 
 ## Emerging frontiers
 
-[[learned-indexes]] replace B-tree branching with piecewise-linear CDF approximation for O(log log N) lookup. [[cache-oblivious-structures]] optimize for every cache level simultaneously without knowing cache parameters. [[succinct-data-structures]] trade CPU cycles for near-information-theoretic space efficiency. These are not just academic — RadixSpline is in RocksDB, PGM-Index has production deployments, and SDSL-lite implements 40 research publications in usable C++ templates.
+[[learned-indexes]] replace B-tree branching with piecewise-linear CDF approximation for O(log log N) lookup. [[cache-oblivious-structures]] optimize for every cache level simultaneously without knowing cache parameters. [[succinct-data-structures]] trade CPU cycles for near-information-theoretic space efficiency. [[elastic-hashing]] (Jan 2025) disproved Yao's 1985 conjecture on probe complexity, suggesting hash table design is not yet exhausted. These are not just academic — RadixSpline is in RocksDB, PGM-Index has production deployments, and SDSL-lite implements 40 research publications in usable C++ templates.

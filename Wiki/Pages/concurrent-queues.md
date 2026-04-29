@@ -20,7 +20,7 @@ High-performance lock-free and low-lock queue implementations for inter-thread c
 
 **moodycamel::ConcurrentQueue** (C++, 18k+ GitHub stars) — 1.7x faster than Boost.Lockfree through per-producer implicit sub-queues that eliminate inter-producer contention. A practical, well-tested choice for C++ applications.
 
-**ParlayHash** (CMU) — while technically a hash map, its 1,130 million ops/sec at 128 threads (vs 29 Mops/s for libcuckoo) demonstrates the state of the art in concurrent data structure throughput.
+[[parlayhash|**ParlayHash**]] (CMU) — while technically a hash map, its 1,130 million ops/sec at 128 threads (vs 29 Mops/s for libcuckoo) demonstrates the state of the art in concurrent data structure throughput.
 
 ## In Rust
 

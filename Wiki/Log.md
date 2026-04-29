@@ -1,5 +1,38 @@
 # Log
 
+## [2026-04-29] ingest | The fastest hash map in computer science, 2025
+- Source: `Raw/Fastest CS/The fastest hash map in computer science, 2025.md`
+- Created (10 pages):
+  - [[fastest-hash-map-2025]] (source summary — 2025 hash map landscape across single-threaded, concurrent, and theoretical frontiers)
+  - [[boost-unordered-flat-map]] — 2025 consensus winner; overflow byte vs Abseil's tombstones; 3.2× fewer comparisons on negative lookup
+  - [[abseil-flat-hash-map]] — Google's reference Swiss Table; production standard; tombstone weakness explained
+  - [[ankerl-unordered-dense]] — iteration champion via dense std::vector storage; Robin Hood with backward-shift
+  - [[folly-f14]] — Meta's chunked design; 24.7 B/elt memory leader; overflow counting (Amble-Knuth 1974)
+  - [[emhash]] — raw insert/erase throughput; tolerates 0.999 load factor with 3-way linear probing
+  - [[parlayhash]] — CMU concurrent hash map; 1,130 Mops at 128 threads via epoch-based reclamation
+  - [[elastic-hashing]] — Jan 2025 disproof of Yao's 1985 conjecture; O(log δ⁻¹) probes without reordering
+  - [[iceberg-hashing]] — JACM 2023; tri-axis optimization (space, cache, stability) for persistent memory
+  - [[perfect-hashing]] — zero-collision constructions for static keys; PTHash, RecSplit, fph
+  - [[frozen-dictionary]] — .NET 8 read-optimized immutable dictionary; build-time key analysis
+- Updated (10 pages):
+  - [[swiss-table]] — deepened with overflow-byte vs tombstone divide, Boost auto-bit-mixing, full implementations table
+  - [[hashbrown]] — added "hash function dominates" insight; foldhash 2–5× speedup; rustc fxhash 6% gain
+  - [[foldhash]] — recontextualized: hasher choice often beats table choice; SipHash trade-offs
+  - [[rapidhash]] — repositioned as the hashing leader; fxhash, gxhash, wyhash landscape; adversarial input caveat
+  - [[papaya]] — added global context vs ParlayHash; concurrent overhead break-even at 4–8 threads
+  - [[dashmap]] — added scaling-limit discussion vs ParlayHash's epoch-based reclamation
+  - [[scc]] — added cross-link to ParlayHash and fastest-hash-map-2025
+  - [[fastest-data-structures]] — refreshed hash map row; added elastic-hashing to emerging frontiers
+  - [[simd-programming]] — added concrete \_mm\_cmpeq\_epi8 metadata-scanning explainer with all major Swiss Table impls
+  - [[rust-concurrent-data-structures]] — added "where Rust sits globally" paragraph anchored to ParlayHash benchmarks
+  - [[concurrent-queues]] — wikified ParlayHash mention
+- Index: added 10 new entries
+- Key insight: the hash *function* often matters more than the hash *table* — switching SipHash → foldhash in Rust beats any single table-level optimization. This was integrated as a recurring thread across hashbrown, foldhash, rapidhash, swiss-table, and the source summary.
+- Open questions:
+  - Will elastic/funnel hashing produce a benchmark-competitive implementation, or will the constants prevent it from displacing Swiss Tables? Worth tracking attractivechaos and Jackson Allan benchmark suites for elastic-hashing entries.
+  - Does Rust have a path to a ParlayHash-class concurrent map (epoch-based reclamation + parallel internal ops)? Crossbeam-epoch provides the foundation; nothing currently composes it with parlaylib-style internal parallelism.
+  - When does FrozenDictionary's break-even (5K–630K reads) get exceeded in practice? Worth measuring on real config-loading workloads.
+
 ## [2026-04-17] ingest | The fastest data structures in computer science, benchmarked
 - Source: `Raw/Fastest CS/General.md`
 - Created (19 pages):

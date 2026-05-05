@@ -6,7 +6,8 @@ tags:
 sources:
   - "Raw/Fastest CS/General.md"
   - "Raw/Fastest CS/The fastest hash map in computer science, 2025.md"
-last_updated: 2026-04-29
+  - "Raw/Fastest CS/The fastest dynamic arrays in computer science.md"
+last_updated: 2026-05-04
 ---
 
 # Fastest Data Structures in Computer Science
@@ -17,6 +18,7 @@ A benchmarked survey of the fastest known implementations across ten major data 
 
 | Category | Champion | Key advantage |
 |----------|----------|---------------|
+| Dynamic arrays | C `realloc` + [[mimalloc]]/[[jemalloc]]; [[folly-fbvector]] in C++ | [[realloc-mremap\|mremap]] enables O(1) growth without copying; [[fastest-dynamic-arrays]] |
 | Hash maps | [[swiss-table]] variants — [[boost-unordered-flat-map]] leads, [[abseil-flat-hash-map]] close second, [[hashbrown]] in Rust | SIMD-parallel metadata probing, 16 slots in ~3 instructions |
 | Ordered containers | [[b-tree]] (not red-black trees) | 3–18x faster due to cache-line-sized nodes, 6x lower tree height |
 | Tries & strings | [[adaptive-radix-tree]] | Four adaptive node sizes with SIMD search, path compression |
@@ -44,7 +46,7 @@ Use [[boost-unordered-flat-map]] or [[abseil-flat-hash-map]] for C++ hash maps (
 
 ## Allocation and memory layout
 
-[[mimalloc]] consistently outperforms jemalloc, tcmalloc, and system malloc — 13% faster on the Lean compiler, 15% lower P99 latency for small allocations. Arena/bump allocators like [[bumpalo]] deliver 2–5x speedup for batch allocations. The [[soa-vs-aos]] pattern yields 1.4–12.7x speedup depending on struct size and access pattern. [[simdjson]] demonstrates the ceiling of SIMD-optimized design: 4x faster than RapidJSON, 25x faster than JSON for Modern C++.
+The single most underrated lever in data structure performance: **the allocator dominates the container** — switching glibc → [[mimalloc]]/[[jemalloc]]/[[tcmalloc]] swings benchmarks more than picking a "better" container does. [[fastest-dynamic-arrays|Dynamic-array benchmarks]] make this concrete: C, Rust, and C++ vectors all land within ~10% of each other once allocators are matched, but switching allocators alone moves results 2–3×. Arena/bump allocators like [[bumpalo]] deliver 2–5x speedup for batch allocations. The [[soa-vs-aos]] pattern yields 1.4–12.7x speedup depending on struct size and access pattern. [[simdjson]] demonstrates the ceiling of SIMD-optimized design: 4x faster than RapidJSON, 25x faster than JSON for Modern C++.
 
 ## Emerging frontiers
 

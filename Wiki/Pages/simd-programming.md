@@ -5,7 +5,8 @@ tags:
 sources:
   - "Raw/Fastest CS/General.md"
   - "Raw/Fastest CS/The fastest hash map in computer science, 2025.md"
-last_updated: 2026-04-29
+  - "Raw/Fastest CS/The fastest dynamic arrays in computer science.md"
+last_updated: 2026-05-04
 ---
 
 # SIMD Programming
@@ -32,3 +33,9 @@ Single Instruction, Multiple Data — the hardware capability that consistently 
 SIMD is not just for numerical computing. Its biggest impact is in **metadata scanning** — checking multiple candidates simultaneously in hash maps, trees, and filters. This pattern, pioneered by [[swiss-table]], has become a universal technique for high-performance data structure design.
 
 The 16-byte `_mm_cmpeq_epi8` is the canonical example. Stored alongside each slot, a 1-byte fingerprint summarizes the actual key; broadcasting the looked-up fingerprint across an SSE register and comparing it against 16 metadata bytes in one instruction filters out ~99.2% of slots without ever touching the key data. [[boost-unordered-flat-map]], [[abseil-flat-hash-map]], [[hashbrown]], [[folly-f14]], and Go 1.24's built-in `map` all rely on variations of this pattern — even Go, which uses portable 64-bit integer SIMD emulation rather than hardware vector instructions. See [[fastest-hash-map-2025]] for the full hash map landscape.
+
+## SIMD memcpy and dynamic-array growth
+
+SIMD's other major contribution to data structures is bulk memory transfer during reallocation. AVX2-optimized memcpy achieves **2–20× faster copying** than scalar code on large aligned blocks, processing 256 bits per instruction; AVX-512 doubles that to 512 bits. For a 1 GB `std::vector<int>` reallocation, the difference between scalar and AVX-512 copying is the difference between memory-bandwidth-bound and instruction-throughput-bound — at the bandwidth limit either way, but reaching it with far fewer instructions issued.
+
+Modern `memcpy`/`memmove` in glibc and musl already use SIMD internally and dispatch to the widest available instruction set at runtime. The remaining lever is **alignment**: passing an aligned destination to `memcpy` lets the implementation use aligned-load instructions, which are faster than unaligned ones on older microarchitectures and avoid cache-line splits everywhere. Crates like `xsimd::aligned_allocator` ensure dynamic arrays produce aligned buffers; Rust's `Vec` is naturally aligned to `std::mem::align_of::<T>()`. See [[fastest-dynamic-arrays]] for where SIMD memcpy fits in the hierarchy of dynamic-array optimizations and [[trivial-relocatability]] for which types qualify for the memcpy path during vector growth.

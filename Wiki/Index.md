@@ -3,7 +3,9 @@
 | Page | Description | Tags |
 |------|-------------|------|
 | [[abseil-flat-hash-map]] | Google's reference Swiss Table; production standard, narrowly trails Boost in 2025 benchmarks | cpp, performance, data-structures |
+| [[absl-inlinedvector]] | Google's drop-in std::vector with inline storage; perfect API parity but ~5x random-access slowdown | cpp, performance, data-structures |
 | [[adaptive-radix-tree]] | SIMD-optimized trie with four adaptive node sizes; fastest for variable-length key indexing in memory | performance, data-structures |
+| [[ankerl-svector]] | Single-header SBO vector with 8-byte minimum sizeof; 7 inline bytes, 1 byte overhead | cpp, performance, data-structures |
 | [[ankerl-unordered-dense]] | Single-header C++ hash map; uncontested iteration champion via dense std::vector storage | cpp, performance, data-structures |
 | [[ambassador]] | Most general-purpose Rust trait delegation crate; structs and enums, cross-crate, generics | rust, design-patterns, crate |
 | [[anyhow]] | Type-erased application error with string context, backtraces on stable, and no_std support | rust, error-handling, crate |
@@ -19,6 +21,7 @@
 | [[blazingly-fast-rust-crate-stack]] | Survey of the high-performance Rust crate ecosystem for 2025–2026 | rust, performance, crate, architecture |
 | [[boost-unordered-flat-map]] | 2025 consensus fastest general-purpose C++ hash map; overflow byte beats Abseil's tombstones | cpp, performance, data-structures |
 | [[bolero]] | Unified fuzzing and property testing under a single API | rust, crate |
+| [[boxing-overhead]] | Why Java ArrayList is 40-100x slower than C++ vector; reified vs erased generics | performance, architecture, data-structures |
 | [[bumpalo]] | Bump allocator for phase-oriented work with ~2 ns allocation and instant bulk deallocation | rust, performance, data-structures, crate |
 | [[bytemuck]] | Safe plain-data type casting, widely used in Solana/wgpu; superseded by zerocopy for new code | rust, performance, crate |
 | [[bytes]] | Arc-backed byte buffers for zero-copy sharing throughout the Tokio ecosystem | rust, performance, crate |
@@ -59,8 +62,11 @@
 | [[facade-crate-pattern]] | Workspace of specialized crates behind a curated public API; used by Bevy, Tokio, ripgrep | rust, architecture, design-patterns |
 | [[failure]] | Deprecated error-handling crate (RustSec EOL); migrate to anyhow/thiserror | rust, error-handling, crate |
 | [[fastest-data-structures]] | Benchmarked survey of fastest implementations across 10 major data structure categories (2020–2026) | performance, data-structures, architecture |
+| [[fastest-dynamic-arrays]] | The hierarchy: realloc/mremap + good allocator beats every container; allocator dominates language | performance, data-structures, architecture |
 | [[fastest-hash-map-2025]] | The 2025 hash map landscape: Boost wins single-threaded, ParlayHash wins concurrent, elastic hashing reopens theory | performance, data-structures, architecture |
 | [[folly-f14]] | Meta's chunked hash map family; lowest memory footprint at 24.7 B/elt; overflow counting | cpp, performance, data-structures |
+| [[folly-fbvector]] | Facebook's optimized vector; jemalloc-aware sizing, xallocx in-place expansion, trivial relocatability | cpp, performance, data-structures |
+| [[folly-small-vector]] | Bit-packed SBO vector with single-bit overhead; designed for billions of small vectors at fleet scale | cpp, performance, data-structures |
 | [[frozen-dictionary]] | .NET 8's read-optimized immutable dictionary; 43–69% faster string lookups via build-time analysis | performance, data-structures |
 | [[fst-finite-state-transducer]] | Immutable sorted string sets/maps sharing prefixes and suffixes; powers Lucene and Tantivy | data-structures, performance, rust |
 | [[foldhash]] | Default hasher for hashbrown 0.15+, replacing ahash with better performance and smaller footprint | rust, performance, data-structures, crate |
@@ -68,6 +74,7 @@
 | [[gats]] | Generic Associated Types: lending iterators, pointer families, lifetime-parameterized associated types | rust, type-theory, architecture |
 | [[generic-array]] | Arrays generic over length via typenum; foundation for RustCrypto ecosystem | rust, type-theory, data-structures, crate |
 | [[glommio]] | Datadog's io_uring runtime with triple-ring architecture, proportional-share scheduling, and DMA storage I/O; effectively unmaintained | rust, concurrency, performance, crate |
+| [[growth-factor-analysis]] | 2x vs 1.5x vs adaptive growth; the memory reuse argument and why it's a third-order optimization | performance, data-structures, architecture |
 | [[hashbrown]] | Swiss Table port to Rust; std::HashMap since 1.36; 2x over Robin Hood; foldhash default hasher | rust, data-structures, crate |
 | [[iceberg-hashing]] | JACM 2023 hash table optimizing space, cache, and stability; built for persistent memory | performance, data-structures, architecture |
 | [[heapless]] | Stack-allocated fixed-capacity collections via const generics for embedded and no_std | rust, performance, data-structures, crate |
@@ -75,10 +82,12 @@
 | [[io-uring]] | Linux completion-based async I/O with cancellation safety, ecosystem incompatibility, and container security challenges | rust, performance, concurrency, architecture |
 | [[ips4o]] | In-Place Super Scalar Samplesort — dominant parallel sort; 1.5x sequential, 3x parallel competitors | performance, concurrency, data-structures |
 | [[itertools]] | Canonical extension trait crate for Iterator with chunks, tuple_windows, interleave, and dozens more | rust, crate |
+| [[jemalloc]] | Facebook's allocator with xallocx in-place expansion; powers folly-fbvector; 30% throughput at 36 threads | performance, architecture |
 | [[jumprope]] | World's fastest rope implementation (~35–40M edits/sec); skip-list spine + gap-buffer leaves | rust, data-structures, performance, crate |
 | [[kanal]] | High-throughput message passing channel leading benchmarks at 8–16M msg/sec | rust, concurrency, crate |
 | [[lazy-lock]] | LazyLock/LazyCell replacing lazy_static and once_cell in std (Rust 1.80) | rust, architecture |
 | [[learned-indexes]] | ML-based index structures (PGM-Index, RadixSpline) delivering 2–3x faster lookups than B-trees | performance, data-structures, architecture |
+| [[llvm-smallvector]] | LLVM's SBO vector with type-erased SmallVectorImpl base for template bloat avoidance | cpp, performance, data-structures |
 | [[lmax-disruptor]] | Lock-free ring buffer achieving 52 ns/hop (630x over ArrayBlockingQueue); mechanical sympathy gold standard | concurrency, performance, architecture |
 | [[miette]] | Diagnostic-first errors with source spans, labels, help text, and rich rendering for compiler-style UX | rust, error-handling, crate |
 | [[mimalloc]] | Microsoft's memory allocator delivering up to 5.3x faster allocation than glibc malloc | rust, performance, crate |
@@ -92,7 +101,9 @@
 | [[perfect-hashing]] | Zero-collision hash construction for static key sets; PTHash, RecSplit; unbeatable on read-only data | performance, data-structures, architecture |
 | [[proptest]] | Property-based testing with automatic shrinking counterexamples | rust, crate |
 | [[pulp]] | Portable SIMD on stable Rust with runtime CPU feature detection and dispatch | rust, performance, crate |
+| [[push-back-unchecked]] | Skipping the size==capacity branch enables vectorization; up to 5.9x speedup at small sizes on Clang | performance, data-structures |
 | [[rapidhash]] | Fastest non-cryptographic hash function overall (4.25 ns geometric mean) | rust, performance, data-structures, crate |
+| [[realloc-mremap]] | Linux's in-place virtual page remapping for O(1) array growth; the ceiling std::vector cannot reach | performance, architecture, data-structures |
 | [[recursion-schemes]] | Catamorphisms and anamorphisms with stack safety and arena-based traversal for AST-heavy code | rust, data-structures, design-patterns, crate |
 | [[rkyv]] | Zero-copy deserialization framework with ~21 ns access time, uncontested in its niche | rust, performance, data-structures, crate |
 | [[rcu]] | Read-Copy-Update — zero read-side overhead concurrency; Linux kernel, liburcu, crossbeam-epoch | concurrency, performance, architecture |
@@ -119,17 +130,21 @@
 | [[serde-architecture]] | Serde's zero-allocation data model via traits; dual extensibility without intermediate representations | rust, architecture, design-patterns |
 | [[simd-programming]] | SIMD as the cross-cutting technique separating fastest data structures from the rest | performance, architecture |
 | [[simdjson]] | SIMD-optimized JSON parser: 4x RapidJSON, 25x nlohmann; gigabytes/second on single core | performance, data-structures |
+| [[small-buffer-optimization]] | The general SBO technique; benchmarks reveal it's overrated for typical workloads | performance, data-structures, architecture |
 | [[soa-vs-aos]] | Structure of Arrays vs Array of Structures — 1.4–12.7x speedup for field-subset access patterns | performance, architecture, data-structures |
 | [[succinct-data-structures]] | Near-information-theoretic-minimum space with efficient queries; SDSL-lite implements 40 publications | performance, data-structures |
 | [[swiss-table]] | SIMD-parallel metadata probing hash map design; adopted by C++, Rust, and Go standard libraries | performance, data-structures, architecture |
-| [[smallvec]] | Stack-inline Vec up to N elements with heap fallback; avoids allocation on the common small-collection path | rust, performance, data-structures, crate |
+| [[smallvec]] | Stack-inline Vec up to N elements with heap fallback; benchmarks show Vec+reserve often beats it by 5.5x | rust, performance, data-structures, crate |
 | [[seastar]] | ScyllaDB's C++ shard-per-core framework; ancestor of Glommio and the thread-per-core pattern | cpp, concurrency, performance, architecture |
 | [[shard-per-core-runtimes-compared]] | Detailed comparison of Monoio, Compio, and Glommio with architecture table and decision framework | rust, concurrency, performance, architecture |
 | [[slotmap]] | Generational-index arenas preventing ABA problems with stable handles | rust, data-structures, crate |
 | [[snafu]] | Error-handling crate using context selectors for structured semantic backtraces, with progressive design from Whatever to opaque types | rust, error-handling, crate |
 | [[snafu-tutorial]] | Deep-dive tutorial on SNAFU: context selectors, backtrace patterns, async integration, boundary conversions, and migration from thiserror | rust, error-handling |
 | [[socket2]] | Ergonomic wrapper for advanced socket configuration (SO_REUSEPORT, TCP_CORK, BPF) | rust, performance, crate |
+| [[space-optimal-arrays]] | Brodnik 1999 √N lower bound, Tarjan-Zwick 2023, HAT, Tiered Vectors; theory loses to prefetchers | performance, data-structures, architecture |
+| [[static-vector]] | Fixed-capacity vector with zero heap and no SBO branch; boost::container, P0843 std::static_vector | cpp, performance, data-structures |
 | [[strum]] | Standard enum ergonomics crate (100M+): Display, FromStr, EnumIter, EnumCount, metadata, discriminants | rust, data-structures, crate |
+| [[tcmalloc]] | Google's allocator; 50x throughput on 4MB allocations; per-CPU caches via rseq | performance, architecture |
 | [[thiserror]] | Ecosystem-standard derive macro (~858M downloads); invisible in public API, no_std since 2.0 via core::error::Error | rust, error-handling, crate |
 | [[thread-per-core]] | Server architecture eliminating cache coherency costs; 2–3x Tokio at 16+ cores but 3x overprovisioning penalty | rust, performance, concurrency, architecture |
 | [[tikv-jemallocator]] | jemalloc wrapper with most stable allocation latency and built-in heap profiling | rust, performance, crate |
@@ -137,6 +152,7 @@
 | [[tracing]] | Ecosystem standard for structured diagnostics with ~1 ns disabled overhead | rust, crate, architecture |
 | [[tracing-error]] | Enriches errors with tracing span context; SpanTrace beats backtraces in async code | rust, error-handling, concurrency, crate |
 | [[trait-upcasting]] | Coerce &dyn Sub to &dyn Super (Rust 1.86); works with Box, Arc, Rc | rust, type-theory |
+| [[trivial-relocatability]] | P1144 proposal; memcpy-based vector growth instead of move construction; 2-10x reallocation speedup | cpp, performance, type-theory, data-structures |
 | [[type-driven-development]] | Methodology: types as specifications, seven techniques from newtypes to typestates, pragmatic limits | rust, type-theory, design-patterns, architecture |
 | [[typed-builder]] | Derive macro for builders with compile-time required field checking | rust, type-theory, crate |
 | [[typestate-pattern]] | Crown jewel of type-driven Rust: state machines checked at compile time via move semantics | rust, type-theory, design-patterns |

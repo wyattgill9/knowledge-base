@@ -1,5 +1,40 @@
 # Log
 
+## [2026-05-04] ingest | The fastest dynamic arrays in computer science
+- Source: `Raw/Fastest CS/The fastest dynamic arrays in computer science.md`
+- Created (16 pages):
+  - [[fastest-dynamic-arrays]] (source summary — the hierarchy from C+realloc through fbvector down to Java/Python)
+  - [[folly-fbvector]] — Facebook's optimized vector; jemalloc-aware sizing, xallocx in-place expansion, trivial relocatability, adaptive growth
+  - [[realloc-mremap]] — Linux kernel page remap for O(1) array growth; the ceiling std::vector cannot reach
+  - [[trivial-relocatability]] — P1144 proposal; memcpy growth for unique_ptr, string, most stdlib types; Rust gets it for free
+  - [[small-buffer-optimization]] — general SBO technique page; 5x random access penalty on absl, 5.5x on SmallVec
+  - [[static-vector]] — boost::container::static_vector; P0843 std::static_vector; cleaner than SBO when bound is fixed
+  - [[growth-factor-analysis]] — 2x vs 1.5x vs adaptive; memory reuse argument is correct but third-order
+  - [[llvm-smallvector]] — type-erased SmallVectorImpl base distinguishes it for large codebases
+  - [[absl-inlinedvector]] — drop-in std::vector but with the surprising 5x random-access regression
+  - [[folly-small-vector]] — bit-packed inline/heap discriminator for billions-of-vectors workloads
+  - [[ankerl-svector]] — 8-byte minimum sizeof; 7 inline bytes; ankerl single-header lineage
+  - [[space-optimal-arrays]] — Brodnik 1999 √N bound, Tarjan-Zwick 2023, HAT, Tiered Vectors; theory loses to prefetchers
+  - [[tcmalloc]] — Google's allocator; 50x on 4MB; per-CPU rseq caches; ~6ns warehouse-scale
+  - [[boxing-overhead]] — Java ArrayList<Integer> 36 B/elt vs C# List<int> reified; explains the 40-100x gap
+  - [[push-back-unchecked]] — skipping size==capacity branch enables vectorization; 5.9x on Clang
+  - [[jemalloc]] — separate C-level page covering xallocx and goodMallocSize used by fbvector
+- Updated (7 pages):
+  - [[mimalloc]] — added "allocator dominates container" framing as central insight; 13-22% measured speedup; cross-link to fbvector and realloc-mremap
+  - [[smallvec]] — added empirical caveat: Vec+reserve up to 5.5x faster than SmallVec on from_slice; conditions where SBO actually wins
+  - [[simd-programming]] — added SIMD memcpy section; 2-20x AVX2 speedup on aligned blocks during reallocation; alignment matters
+  - [[fastest-data-structures]] — added dynamic-arrays row to category table; added "allocator dominates container" framing to allocation section
+  - [[tikv-jemallocator]] — cross-linked to new C-level jemalloc page; added xallocx integration for fbvector
+  - [[rust-memory-allocators]] — added cross-language framing: switching allocators beats switching languages; one-line global allocator change is highest-leverage
+- Index: added 16 new entries
+- New wikilinks: [[fastest-dynamic-arrays]], [[folly-fbvector]], [[realloc-mremap]], [[trivial-relocatability]], [[small-buffer-optimization]], [[static-vector]], [[growth-factor-analysis]], [[llvm-smallvector]], [[absl-inlinedvector]], [[folly-small-vector]], [[ankerl-svector]], [[space-optimal-arrays]], [[tcmalloc]], [[boxing-overhead]], [[push-back-unchecked]], [[jemalloc]]
+- Key insight: the **allocator dominates the container**. C, Rust, and C++ vectors all land within ~10% of each other, but switching glibc → jemalloc/mimalloc moves benchmarks 2-3×. This recontextualizes much of the previous "fastest hash map" / "fastest data structure" hierarchy — and integrates as a recurring thread across mimalloc, jemalloc, fastest-data-structures, and rust-memory-allocators.
+- Open questions:
+  - When will P1144 (trivial relocatability) actually land in C++? Once it does, the std::vector vs fbvector gap closes substantially.
+  - Project Valhalla in Java has been promised for over a decade — does it close the boxing gap meaningfully when it ships?
+  - Does the realloc/mremap advantage hold on macOS and Windows, or is it Linux-specific? The source emphasizes Linux but doesn't characterize the others.
+  - For containers-of-containers in Rust, is `Vec<SmallVec<...>>` actually beaten by `Vec<Vec<...>>` once mimalloc is in play?
+
 ## [2026-04-29] ingest | The fastest hash map in computer science, 2025
 - Source: `Raw/Fastest CS/The fastest hash map in computer science, 2025.md`
 - Created (10 pages):

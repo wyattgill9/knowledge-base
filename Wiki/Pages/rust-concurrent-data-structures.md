@@ -7,7 +7,8 @@ tags:
 sources:
   - "Raw/Rust/The blazingly fast Rust crate stack for 2025–2026.md"
   - "Raw/Fastest CS/The fastest hash map in computer science, 2025.md"
-last_updated: 2026-04-29
+  - "Raw/Fastest CS/The fastest queue in all of computer science.md"
+last_updated: 2026-05-06
 ---
 
 # Rust Concurrent Data Structures
@@ -35,3 +36,15 @@ An overview of the concurrent maps and channels available beyond `std` in the Ru
 | [[crossbeam-channel]] | High | Sync MPMC | Synchronous multi-producer/multi-consumer |
 
 Within Tokio, `tokio::sync::mpsc` benefits from intra-thread coroutine switching that can outperform kanal when sender and receiver share a worker thread. Outside Tokio or for maximum portable throughput, kanal leads.
+
+## Bare queues (without channel semantics)
+
+When you want raw FIFO without blocking/notification overhead:
+
+| Crate | Topology | Throughput | Notes |
+|---|---|---|---|
+| [[rtrb]] | SPSC, wait-free | ~7 ns/op, 520M+ ops/s on Apple M4 | Real-time / audio DSP |
+| [[crossbeam-array-queue\|crossbeam ArrayQueue]] | Bounded MPMC | ~10× rtrb on 4 producers | Vyukov-style |
+| `crossbeam::queue::SegQueue` | Unbounded MPMC | Slower, allocates | Chunked linked list |
+
+**Where Rust sits globally for queues.** Rust has no native [[lcrq|LCRQ]], [[scq|SCQ]], [[lprq|LPRQ]], or [[wcq|wCQ]] port as of 2025. The closest ecosystem equivalents are Vyukov-style ring buffers in `crossbeam-queue`. C++ has the full lineage (Pedro Ramalhete's reference LCRQ, [[atomic-queue]], [[moodycamel-concurrent-queue]]); Java got LCRQ-class designs via JCTools and the [[lmax-disruptor]]. For applications that need 100+ thread MPMC at the C++ throughput ceiling, this is a real gap. For the 4–32 thread range where most Rust services live, `ArrayQueue` and the channel libraries are competitive. See [[the-fastest-queue]] for the broader picture.

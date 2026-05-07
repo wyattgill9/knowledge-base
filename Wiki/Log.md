@@ -1,5 +1,47 @@
 # Log
 
+## [2026-05-06] ingest | The fastest queue in all of computer science
+- Source: `Raw/Fastest CS/The fastest queue in all of computer science.md`
+- Created (22 pages):
+  - [[the-fastest-queue]] (source summary — 2025 hierarchy from SPSC ring buffer to LCRQ+Funnels)
+  - [[lcrq]] — Linked Concurrent Ring Queue (Morrison & Afek, PPoPP 2013); FAA-on-a-ring; 3× over Michael-Scott
+  - [[aggregating-funnels]] — software FAA combining (PPoPP 2025); up to 2.5× over plain LCRQ at high thread counts
+  - [[scq]] — Scalable Circular Queue (Nikolaev, DISC 2019); portable LCRQ alternative; half the memory; threshold mechanism
+  - [[lprq]] — Linked Portable Ring Queue (Romanov & Koval, PPoPP 2023); direct LCRQ port without CAS2
+  - [[wcq]] — Wait-free Circular Queue (Nikolaev & Ravindran, SPAA 2022); fast-path-slow-path; matches SCQ throughput
+  - [[faa-vs-cas]] — the foundational primitive choice; FAA always succeeds, CAS retries cause contention meltdown; 40 ns vs 75 ns at 144 threads
+  - [[false-sharing]] — the 128-byte cache-line rule; modern x86 adjacent prefetcher makes 64-byte padding insufficient; 3.1× over unpadded
+  - [[ring-buffer]] — generic foundation; 1.5× over std::queue, 2–10× over linked-list; virtual-memory branch elimination trick
+  - [[spsc-queue]] — single-producer single-consumer privilege; 300–530M ops/s; acquire/release + shadow variables + 128-byte padding
+  - [[mpmc-queue]] — MPMC landscape; 2013–2025 algorithm progression with throughput tier table
+  - [[michael-scott-queue]] — canonical 1996 lock-free MPMC; the historical baseline LCRQ obsoleted
+  - [[moodycamel-concurrent-queue]] — C++ MPMC with per-producer sub-queues; 1.7× Boost.Lockfree; relaxed cross-producer FIFO
+  - [[atomic-queue]] — C++ header-only library; OptimistAtomicQueue at 200–500M+ ops/s with sub-100 ns latency
+  - [[rtrb]] — Rust wait-free SPSC; ~7 ns/op; 520M+ ops/s on Apple M4
+  - [[crossbeam-array-queue]] — Rust Vyukov-style bounded MPMC; closest equivalent to LCRQ-class designs in the Rust ecosystem
+  - [[numa-aware-queues]] — Nuddle delegation, SmartPQ; 1.87× over NUMA-oblivious on multi-socket
+  - [[gpu-queues]] — warp-centric design mandatory; CAS melts down 1,112× at high thread counts; SIMT divergence
+  - [[bacq]] — Boundary-Aware Concurrent Queue (2024); 2–9× over previous GPU queue designs
+  - [[persistent-queues]] — functional queues: Hood-Melville (1981), Okasaki (1995), Kaplan-Tarjan (1999) with O(1) catenation
+  - [[elimination-backoff-stack]] — Hendler-Shavit-Yerushalmi 2004; matches push/pop in randomized array; 100K+ ops/msec at 64 threads
+  - (no separate page for Cyclic Memory Protection — mentioned inline in [[mpmc-queue]] and [[the-fastest-queue]] as a 2025 preprint)
+- Major rewrites (2 pages):
+  - [[concurrent-queues]] — promoted from thin survey to full 2025 hierarchy with MPMC table, SPSC tier, ecosystem tables, specialized contexts, stacks
+  - [[lmax-disruptor]] — refreshed comparisons; positioned as "bounded pipeline tail-latency king" rather than throughput king (ceded to LCRQ+Funnels); 128-byte rule integrated; cross-links throughout
+- Updates (5 pages):
+  - [[kanal]] — added throughput-in-global-context paragraph; channel ≠ queue distinction; pointers to bare-queue alternatives
+  - [[crossbeam-channel]] — added channel-vs-raw-queue note
+  - [[cache-coherency]] — integrated FAA-vs-CAS as a cache-coherence story; corrected 64-byte → 128-byte padding guidance
+  - [[fastest-data-structures]] — added MPMC and SPSC queue rows; added FAA-vs-CAS as a fourth core principle; refreshed default-stack
+  - [[rust-concurrent-data-structures]] — added bare-queues table; "where Rust sits globally for queues" paragraph noting absence of native LCRQ port
+- Index: added 22 new entries; refreshed 2 descriptions
+- Key insight: the **FAA-over-CAS** principle is the dominant lever in concurrent queue design from 2013 onward, and the throughput improvements since then have come from chipping away at FAA's own limits — first by making it portable (SCQ, LPRQ), then wait-free (wCQ), and most recently by software-combining the FAA itself ([[aggregating-funnels]]). Combined with the [[false-sharing|128-byte cache-line rule]] and [[spsc-queue|SPSC topology privilege]], this fully accounts for the ~7× gap between modern queues and the 1996 [[michael-scott-queue]] still in many standard libraries. Integrated as a recurring thread across the new pages and into [[fastest-data-structures]] as a fourth core principle alongside SIMD-parallel scanning, contiguous layouts, and branch elimination.
+- Open questions:
+  - Will a native Rust port of LCRQ / SCQ / LPRQ appear? The ecosystem gap is significant for >32-thread MPMC workloads; nothing in `crossbeam-queue` matches LCRQ-class throughput. The closest current path is `crossbeam-epoch` plus a custom implementation.
+  - Does the November 2025 "No Cords Attached" CMP preprint hold up under peer review? 6.49M items/s with coordination-free reclamation is striking; if it survives, it could displace [[crossbeam-epoch]] for some use cases.
+  - Will [[aggregating-funnels]] be plugged into [[lprq]] / [[wcq]]? The combining technique is independent of the underlying queue; combining it with wait-freedom would be a significant theoretical result.
+  - Does the 128-byte cache-line rule hold on Apple Silicon and ARM server chips? The source emphasizes x86 adjacent-line prefetching — ARM behavior may differ enough to change the optimal padding.
+
 ## [2026-05-04] ingest | The fastest dynamic arrays in computer science
 - Source: `Raw/Fastest CS/The fastest dynamic arrays in computer science.md`
 - Created (16 pages):

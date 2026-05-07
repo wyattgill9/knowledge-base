@@ -7,7 +7,8 @@ sources:
   - "Raw/Fastest CS/General.md"
   - "Raw/Fastest CS/The fastest hash map in computer science, 2025.md"
   - "Raw/Fastest CS/The fastest dynamic arrays in computer science.md"
-last_updated: 2026-05-04
+  - "Raw/Fastest CS/The fastest queue in all of computer science.md"
+last_updated: 2026-05-06
 ---
 
 # Fastest Data Structures in Computer Science
@@ -26,7 +27,9 @@ A benchmarked survey of the fastest known implementations across ten major data 
 | Sequential sort | [[pdqsort]] | Linear on presorted data, heapsort worst-case guarantee, branchless variant |
 | Parallel sort | [[ips4o]] | 1.5x faster than next sequential, 3x faster than next parallel competitor |
 | Stable sort | [[driftsort]] (Rust) | Up to 4x faster than previous Rust stable sort |
-| Lock-free queues | [[lmax-disruptor]] | 52 ns/hop — 630x faster than `ArrayBlockingQueue` |
+| MPMC queues | [[lcrq]] + [[aggregating-funnels]] | FAA-on-a-ring; 2.5× over plain LCRQ at high thread counts; [[the-fastest-queue]] |
+| SPSC queues | [[ring-buffer]] (acquire/release + [[false-sharing\|128-byte padding]]) | 300–530M ops/s; [[rtrb]] hits 520M+ on Apple M4 |
+| Bounded latency pipelines | [[lmax-disruptor]] | 52 ns/hop — 630× lower mean latency than `ArrayBlockingQueue` |
 | Read-dominated concurrency | [[rcu]] | Zero read-side overhead — no locks, no atomics, no barriers |
 | Set membership | [[binary-fuse-filter]] | 13% of information-theoretic minimum, 2x faster construction than Xor |
 | Graph analytics | [[csr-graph]] | Contiguous edge arrays, maximal cache locality, 40–250x faster than NetworkX |
@@ -40,9 +43,11 @@ A benchmarked survey of the fastest known implementations across ten major data 
 
 **Branch elimination.** Branchless partitioning in [[pdqsort]]/[[driftsort]], branchless SIMD search in Algorithmica's B-tree, branchless merge loops. Modern CPUs pay enormous costs for branch mispredictions — eliminating them is consistently worth 20–50% performance.
 
+**[[faa-vs-cas|FAA over CAS]] at contention hotspots.** The principle that obsoleted the [[michael-scott-queue]] and produced [[lcrq|LCRQ]], [[scq|SCQ]], [[lprq|LPRQ]], and [[wcq|wCQ]]: CAS-retry melts down under contention while FAA always succeeds. At 144 threads: FAA ~40 ns vs CAS ~75 ns. Combined with the [[false-sharing|128-byte cache-line rule]], this is the dominant lever in concurrent data structure design.
+
 ## The practical default stack
 
-Use [[boost-unordered-flat-map]] or [[abseil-flat-hash-map]] for C++ hash maps ([[hashbrown]] in Rust). Note: in many workloads the *hash function* (foldhash, rapidhash) matters more than the table — see [[fastest-hash-map-2025]]. Use [[b-tree]] variants for ordered containers. Use [[d-ary-heap]] for priority queues. Use [[ips4o]] for parallel sorting. Use [[binary-fuse-filter]] for set membership. Use [[csr-graph]] for graph analytics. For concurrent hash maps at scale, [[parlayhash]] hits 1,130 Mops at 128 threads. For other concurrent workloads, the [[lmax-disruptor]] pattern and [[rcu]] remain hard to beat. The most exciting frontier — [[learned-indexes]] — is already delivering production wins and may fundamentally reshape database indexing.
+Use [[boost-unordered-flat-map]] or [[abseil-flat-hash-map]] for C++ hash maps ([[hashbrown]] in Rust). Note: in many workloads the *hash function* (foldhash, rapidhash) matters more than the table — see [[fastest-hash-map-2025]]. Use [[b-tree]] variants for ordered containers. Use [[d-ary-heap]] for priority queues. Use [[ips4o]] for parallel sorting. Use [[binary-fuse-filter]] for set membership. Use [[csr-graph]] for graph analytics. For concurrent hash maps at scale, [[parlayhash]] hits 1,130 Mops at 128 threads. For concurrent queues, [[lcrq|LCRQ]] + [[aggregating-funnels]] is the strict-FIFO MPMC ceiling; [[lmax-disruptor]] still wins for bounded pipeline tail latency; for read-dominated workloads [[rcu]] remains hard to beat. The most exciting frontier — [[learned-indexes]] — is already delivering production wins and may fundamentally reshape database indexing.
 
 ## Allocation and memory layout
 

@@ -26,12 +26,14 @@
 | [[bolero]] | Unified fuzzing and property testing under a single API | rust, crate |
 | [[boxing-overhead]] | Why Java ArrayList is 40-100x slower than C++ vector; reified vs erased generics | performance, architecture, data-structures |
 | [[bumpalo]] | Bump allocator for phase-oriented work with ~2 ns allocation and instant bulk deallocation | rust, performance, data-structures, crate |
+| [[busy-spin]] | The PAUSE-loop discipline; sub-100 ns RTT at 100% core cost; 15× generational variance on Intel | concurrency, performance, architecture |
 | [[bytemuck]] | Safe plain-data type casting, widely used in Solana/wgpu; superseded by zerocopy for new code | rust, performance, crate |
 | [[bytes]] | Arc-backed byte buffers for zero-copy sharing throughout the Tokio ecosystem | rust, performance, crate |
 | [[cache-coherency]] | MESI protocol costs, cache-friendly design, and why thread-per-core eliminates coherency traffic | performance, concurrency, architecture |
 | [[cache-oblivious-structures]] | Data structures optimizing for every cache level simultaneously without knowing cache parameters | performance, data-structures, architecture |
 | [[champ]] | Compressed Hash-Array Mapped Prefix-tree powering Clojure/Scala immutable collections; 10–100% over HAMT | data-structures, performance |
 | [[concurrent-queues]] | The 2025 MPMC hierarchy from LCRQ+Funnels down to Michael-Scott; SPSC tier, channels, stacks | concurrency, performance, data-structures |
+| [[core-pinning]] | taskset, isolcpus, SCHED_FIFO; cuts P99.9 latency from 120 µs to 30 µs; HFT foundation | performance, concurrency, architecture |
 | [[crossbeam-array-queue]] | Vyukov-style bounded MPMC queue from crossbeam; closest Rust equivalent to LCRQ-class designs | rust, concurrency, data-structures, crate |
 | [[crossbeam-epoch]] | Epoch-based memory reclamation for lock-free Rust data structures; RCU equivalent | rust, concurrency, crate |
 | [[csr-graph]] | Compressed Sparse Row — fastest read-only graph representation; 40–250x faster than NetworkX | performance, data-structures, architecture |
@@ -71,6 +73,7 @@
 | [[fastest-data-structures]] | Benchmarked survey of fastest implementations across 10 major data structure categories (2020–2026) | performance, data-structures, architecture |
 | [[fastest-dynamic-arrays]] | The hierarchy: realloc/mremap + good allocator beats every container; allocator dominates language | performance, data-structures, architecture |
 | [[fastest-hash-map-2025]] | The 2025 hash map landscape: Boost wins single-threaded, ParlayHash wins concurrent, elastic hashing reopens theory | performance, data-structures, architecture |
+| [[flat-combining]] | Hendler-Incze-Shavit-Tzafrir 2010; combiner thread batches operations; wins where lock-free CAS melts down | concurrency, performance, data-structures |
 | [[folly-f14]] | Meta's chunked hash map family; lowest memory footprint at 24.7 B/elt; overflow counting | cpp, performance, data-structures |
 | [[folly-fbvector]] | Facebook's optimized vector; jemalloc-aware sizing, xallocx in-place expansion, trivial relocatability | cpp, performance, data-structures |
 | [[folly-small-vector]] | Bit-packed SBO vector with single-bit overhead; designed for billions of small vectors at fleet scale | cpp, performance, data-structures |
@@ -85,7 +88,9 @@
 | [[growth-factor-analysis]] | 2x vs 1.5x vs adaptive growth; the memory reuse argument and why it's a third-order optimization | performance, data-structures, architecture |
 | [[hashbrown]] | Swiss Table port to Rust; std::HashMap since 1.36; 2x over Robin Hood; foldhash default hasher | rust, data-structures, crate |
 | [[iceberg-hashing]] | JACM 2023 hash table optimizing space, cache, and stability; built for persistent memory | performance, data-structures, architecture |
+| [[inter-thread-communication]] | The 50–135 ns floor; topology > algorithm; full latency ladder from cache-line transfer to scheduler wake | concurrency, performance, architecture |
 | [[heapless]] | Stack-allocated fixed-capacity collections via const generics for embedded and no_std | rust, performance, data-structures, crate |
+| [[huge-pages]] | 2 MB / 1 GB pages eliminate TLB misses; 32× more address space per entry; allocator-level integration | performance, architecture |
 | [[iai-callgrind]] | Deterministic instruction-count benchmarking via Valgrind for CI regression detection | rust, performance, crate |
 | [[io-uring]] | Linux completion-based async I/O with cancellation safety, ecosystem incompatibility, and container security challenges | rust, performance, concurrency, architecture |
 | [[ips4o]] | In-Place Super Scalar Samplesort — dominant parallel sort; 1.5x sequential, 3x parallel competitors | performance, concurrency, data-structures |
@@ -93,12 +98,15 @@
 | [[jemalloc]] | Facebook's allocator with xallocx in-place expansion; powers folly-fbvector; 30% throughput at 36 threads | performance, architecture |
 | [[jumprope]] | World's fastest rope implementation (~35–40M edits/sec); skip-list spine + gap-buffer leaves | rust, data-structures, performance, crate |
 | [[kanal]] | High-throughput message passing channel leading benchmarks at 8–16M msg/sec | rust, concurrency, crate |
+| [[kernel-bypass]] | DPDK pattern: poll-mode drivers, no syscalls; 5 µs UDP vs 9 µs kernel; principles translate to inter-thread | performance, architecture, concurrency |
 | [[lazy-lock]] | LazyLock/LazyCell replacing lazy_static and once_cell in std (Rust 1.80) | rust, architecture |
 | [[lcrq]] | Linked Concurrent Ring Queue (PPoPP 2013); FAA-on-a-ring; 3× over Michael-Scott; foundation of modern fast MPMC | concurrency, performance, data-structures |
 | [[learned-indexes]] | ML-based index structures (PGM-Index, RadixSpline) delivering 2–3x faster lookups than B-trees | performance, data-structures, architecture |
 | [[lprq]] | Portable LCRQ (PPoPP 2023); drops CAS2 while matching LCRQ on x86; 1.6× over previous portable designs | concurrency, performance, data-structures |
 | [[llvm-smallvector]] | LLVM's SBO vector with type-erased SmallVectorImpl base for template bloat avoidance | cpp, performance, data-structures |
 | [[lmax-disruptor]] | Lock-free ring buffer achieving 52 ns/hop (630x over ArrayBlockingQueue); mechanical sympathy gold standard | concurrency, performance, architecture |
+| [[mechanical-sympathy]] | Martin Thompson's design philosophy; Java ping-pong 50 ns vs C++ 45 ns proves hardware sets the speed | performance, architecture, concurrency |
+| [[memory-ordering]] | x86 TSO vs ARM relaxed; acquire/release free on x86, costs 10–20 ns DMB on ARM; the seq_cst trap | concurrency, performance, architecture |
 | [[michael-scott-queue]] | Canonical 1996 lock-free MPMC linked-list queue; 3× slower than LCRQ; still in Java's ConcurrentLinkedQueue | concurrency, data-structures |
 | [[miette]] | Diagnostic-first errors with source spans, labels, help text, and rich rendering for compiler-style UX | rust, error-handling, crate |
 | [[mimalloc]] | Microsoft's memory allocator delivering up to 5.3x faster allocation than glibc malloc | rust, performance, crate |
@@ -152,6 +160,7 @@
 | [[soa-vs-aos]] | Structure of Arrays vs Array of Structures — 1.4–12.7x speedup for field-subset access patterns | performance, architecture, data-structures |
 | [[succinct-data-structures]] | Near-information-theoretic-minimum space with efficient queries; SDSL-lite implements 40 publications | performance, data-structures |
 | [[swiss-table]] | SIMD-parallel metadata probing hash map design; adopted by C++, Rust, and Go standard libraries | performance, data-structures, architecture |
+| [[synchronization-primitives]] | The latency ladder: atomic spin (35 ns) → futex fast path (25 ns) → syscall (5 µs) → context switch (10 µs) | concurrency, performance, architecture |
 | [[smallvec]] | Stack-inline Vec up to N elements with heap fallback; benchmarks show Vec+reserve often beats it by 5.5x | rust, performance, data-structures, crate |
 | [[seastar]] | ScyllaDB's C++ shard-per-core framework; ancestor of Glommio and the thread-per-core pattern | cpp, concurrency, performance, architecture |
 | [[shard-per-core-runtimes-compared]] | Detailed comparison of Monoio, Compio, and Glommio with architecture table and decision framework | rust, concurrency, performance, architecture |

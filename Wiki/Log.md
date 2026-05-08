@@ -1,5 +1,35 @@
 # Log
 
+## [2026-05-07] ingest | The fastest ways to talk between threads
+- Source: `Raw/Fastest CS/The fastest ways to talk between threads.md`
+- Created (9 pages):
+  - [[inter-thread-communication]] (source summary — full latency hierarchy from 16 ns hardware floor to 50 µs scheduler wake)
+  - [[synchronization-primitives]] — the cost ladder; futex fast path 25 ns vs slow path 5 µs; eventfd is slower than UNIX sockets
+  - [[flat-combining]] — Hendler-Incze-Shavit-Tzafrir 2010; combiner thread batches operations; antidote to CAS retry meltdown
+  - [[core-pinning]] — taskset, isolcpus, SCHED_FIFO, disable SMT; cuts P99.9 from 120 µs to 30 µs; full HFT recipe
+  - [[mechanical-sympathy]] — Martin Thompson's design philosophy; Java 50 ns vs C++ 45 ns proves language barely matters at this layer
+  - [[memory-ordering]] — x86 TSO vs ARM relaxed; acquire/release free on x86; DMB ~10–20 ns on ARM; PAUSE vs YIELD vs WFE per arch
+  - [[huge-pages]] — 2 MB / 1 GB pages; 32× / 16,384× more address space per TLB entry; THP vs explicit hugetlb; allocator integration
+  - [[kernel-bypass]] — DPDK pattern; 5 µs UDP vs 9 µs kernel; same principles as inter-thread (poll-mode, pre-alloc, pinning)
+  - [[busy-spin]] — PAUSE instruction; **15× generational variance** on Intel (9 cycles Broadwell → 140 cycles Skylake); ARM YIELD vs Apple WFE
+- Updated (7 pages):
+  - [[cache-coherency]] — added topology table (Zen 3 16 ns vs Sapphire Rapids 150 ns), MESIF/MOESI distinction, CLDEMOTE 7.3→22 GB/s data point, hyperthread 16.5 ns figure
+  - [[spsc-queue]] — added Lamport 1977 lineage in opener, Erik Rigtorp attribution for cached indices (5.5M → 112M ops/s), huge-page backing section
+  - [[lmax-disruptor]] — wikified mechanical-sympathy section, added Java vs C++ ping-pong (50 ns vs 45 ns) section establishing language convergence
+  - [[false-sharing]] — added per-language padding idioms table (alignas, repr(align), @Contended, manual padding, __attribute__)
+  - [[faa-vs-cas]] — added Schweizer-Besta-Hoefler ETH Zurich finding that CAS/FAA/swap have identical instruction latency (6 vs 7 ns); the gap is semantic
+  - [[rtrb]] — added cross-language section noting essentially identical machine code to C++ and JCTools; safety not speed is Rust's edge
+  - [[kanal]] — added Go channels comparison (5–10× faster than Go chan); language-level features add fixed costs
+- Index: added 9 new entries
+- Key insight: **topology trumps algorithm** — the same SPSC ring buffer varies 5–10× in latency depending on whether threads share an L3 cache (16 ns) or cross an interconnect fabric (107 ns AMD, 150 ns cross-socket Intel). The single highest-leverage optimization in any inter-thread system is `taskset`, not the queue choice. Integrated as a recurring thread across [[core-pinning]], [[cache-coherency]], [[inter-thread-communication]], and [[mechanical-sympathy]].
+- Secondary insight: **the synchronization cost ladder** spans six orders of magnitude, but the boundary that matters is between Level 2 (userspace futex fast path, 25 ns) and Level 3 (syscall, 5 µs) — a 50× cliff. Modern adaptive mutexes (>80% userspace completion) make `std::mutex` faster than folklore suggests. Surprising data: `eventfd` (4,353 ns) is slower than UNIX domain sockets (1,439 ns) for thread signaling.
+- Tertiary insight: **languages converge at the hardware**. Java volatile 50 ns vs C++ atomic 45 ns is rounding error compared to the 100× cost of a single mechanical-sympathy violation. The [[lmax-disruptor]] beats most C/C++ queues from Java by aligning every decision with the cache coherence protocol.
+- Open questions:
+  - Will Apple Silicon's `WFE`/`SEV` pattern get more ergonomic library support? Current Rust `spin_loop()` emits `YIELD` rather than `WFE` — for long waits, that's leaving power and latency on the table.
+  - Does Intel's `CLDEMOTE` (Sapphire Rapids+) get an AMD equivalent? The 3× core-to-core bandwidth boost from one instruction is significant; AMD's silence on this is conspicuous.
+  - For Rust specifically, is there a path to a `futex(2)`-aware adaptive mutex matching glibc's? `parking_lot` is close but lacks the per-CPU adaptive spin tuning glibc 2.35+ has.
+  - Where does ARM's relaxed memory ordering actually cost in real benchmarks? The DMB ~10–20 ns figure suggests up to 30% overhead in tight atomic loops, but published cross-architecture inter-thread benchmarks remain rare.
+
 ## [2026-05-06] ingest | The fastest queue in all of computer science
 - Source: `Raw/Fastest CS/The fastest queue in all of computer science.md`
 - Created (22 pages):

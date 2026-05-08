@@ -5,7 +5,8 @@ tags:
   - architecture
 sources:
   - "Raw/Fastest CS/The fastest queue in all of computer science.md"
-last_updated: 2026-05-06
+  - "Raw/Fastest CS/The fastest ways to talk between threads.md"
+last_updated: 2026-05-07
 ---
 
 # FAA vs CAS
@@ -41,6 +42,18 @@ The 144-thread numbers from the [[the-fastest-queue|queue paper]]:
 | FAA (`LOCK XADD`) | ~40 ns |
 | CAS (`LOCK CMPXCHG`) | ~75 ns |
 
+## The instruction-cost myth
+
+The popular belief that "FAA is faster than CAS" at the instruction level is wrong. **Schweizer, Besta, and Hoefler** (ETH Zurich) measured CAS, FAA, and atomic swap directly and found their instruction-level latencies are **essentially identical** — all three are `LOCK`-prefixed RMWs that bottleneck on the same cache-coherence transaction. Uncontended on Intel Haswell:
+
+| Operation | Latency |
+|-----------|---------|
+| CAS (`LOCK CMPXCHG`) | ~6 ns |
+| FAA (`LOCK XADD`) | ~7 ns |
+| Plain load | ~1.2 ns |
+
+The 1 ns gap is noise. FAA's real advantage is **semantic, not hardware**: it always succeeds, whereas CAS may fail and require retry. Under contention, that semantic difference compounds into the throughput cliff that makes FAA-based queues like [[lcrq|LCRQ]] win — but a single uncontended FAA isn't meaningfully cheaper than a single uncontended CAS.
+
 ## When CAS is still right
 
 FAA only handles addition, so it cannot replace CAS for:
@@ -59,5 +72,7 @@ Even FAA serializes through cache coherence — the hardware physically cannot g
 
 - [[lcrq]], [[scq]], [[lprq]], [[wcq]] — queues built around the FAA-then-slot-CAS pattern
 - [[aggregating-funnels]] — the next layer up
+- [[flat-combining]] — alternative to lock-free under extreme contention
 - [[michael-scott-queue]] — the canonical CAS-retry queue this insight obsoleted
 - [[cache-coherency]] — why contention costs what it costs
+- [[inter-thread-communication]] — broader hierarchy

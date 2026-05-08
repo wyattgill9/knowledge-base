@@ -6,12 +6,13 @@ tags:
 sources:
   - "Raw/Fastest CS/General.md"
   - "Raw/Fastest CS/The fastest queue in all of computer science.md"
-last_updated: 2026-05-06
+  - "Raw/Fastest CS/The fastest ways to talk between threads.md"
+last_updated: 2026-05-07
 ---
 
 # LMAX Disruptor
 
-The Disruptor is the gold standard for **bounded pipeline latency**, created by Martin Thompson et al. at LMAX Exchange. Its pre-allocated [[ring-buffer]] with sequence-number-based coordination achieves **52 ns mean latency per hop** and **128 ns at the 99th percentile** — compared to 32,757 ns mean and 2,097,152 ns p99 for Java's `ArrayBlockingQueue`. That is **630× lower mean latency** and **8× higher throughput** (26M vs 5.3M ops/s in 1P/1C). LMAX itself processes 6 million orders per second on a single JVM thread.
+The Disruptor is the gold standard for **bounded pipeline latency**, created by Martin Thompson et al. at LMAX Exchange. Its pre-allocated [[ring-buffer]] with sequence-number-based coordination achieves **52 ns mean latency per hop** and **128 ns at the 99th percentile** — compared to 32,757 ns mean and 2,097,152 ns p99 for Java's `ArrayBlockingQueue`. That is **630× lower mean latency** and **8× higher throughput** (26M vs 5.3M ops/s in 1P/1C). LMAX itself processes 6 million orders per second on a single JVM thread. The Disruptor is also the canonical demonstration of [[mechanical-sympathy]]: a Java program that beats most C/C++ queues purely by aligning every design decision with the underlying hardware.
 
 ## Where the Disruptor sits in 2025
 
@@ -28,7 +29,7 @@ The Disruptor is **not** the absolute throughput champion — for raw MPMC throu
 
 ## Design: mechanical sympathy
 
-The Disruptor embodies "mechanical sympathy" — designing software that works with the hardware rather than against it:
+The Disruptor embodies [[mechanical-sympathy|mechanical sympathy]] — designing software that works with the hardware rather than against it:
 
 - **Pre-allocated ring buffer** — no allocation on the hot path, no GC pressure. Sized to a power of 2 so index computation is bitwise AND.
 - **Single-writer principle** — each sequence number is written by exactly one thread, eliminating write contention. Multiple consumers read the same buffer; they coordinate via published sequence numbers, not by claiming slots competitively. This is exactly the [[spsc-queue|SPSC]] privilege extended to a one-producer-many-consumer pipeline.
@@ -44,6 +45,10 @@ The Disruptor embodies "mechanical sympathy" — designing software that works w
 | 99th percentile latency | 2,097,152 ns | **128 ns** |
 
 The 16,000× p99 advantage is the headline. ArrayBlockingQueue's tail is dominated by lock contention and GC pauses; the Disruptor has neither.
+
+## Java vs C++ at the inter-thread layer
+
+A widely-cited Martin Thompson benchmark: Java volatile ping-pong runs at **50 ns** per operation, C++ `std::atomic` ping-pong at **45 ns** on identical hardware. The 10% gap is rounding error compared to the 100× cost of a single algorithmic mistake. Both languages emit `LOCK`-prefixed x86 instructions and bottleneck on the same [[cache-coherency|MESI/MOESI protocol]]. The Disruptor's 52 ns/hop *in Java* is what makes the point: at the inter-thread layer, **the hardware sets the speed and the language barely matters**. See [[inter-thread-communication]] for the broader cross-language convergence data.
 
 ## When to use it
 
@@ -74,5 +79,7 @@ For read-dominated workloads, [[rcu|RCU]] achieves even lower overhead — effec
 - [[ring-buffer]] — the underlying structure
 - [[spsc-queue]] — same fundamental privilege, two-thread variant
 - [[false-sharing]] — the 128-byte rule the Disruptor's padding is a poster child for
+- [[mechanical-sympathy]] — the design philosophy the Disruptor embodies
+- [[busy-spin]] — the wait strategies the Disruptor relies on
 - [[the-fastest-queue]] — broader hierarchy
 - [[concurrent-queues]] — broader landscape

@@ -6,7 +6,8 @@ tags:
   - crate
 sources:
   - "Raw/Fastest CS/The fastest queue in all of computer science.md"
-last_updated: 2026-05-06
+  - "Raw/Fastest CS/The fastest ways to talk between threads.md"
+last_updated: 2026-05-07
 ---
 
 # rtrb
@@ -37,8 +38,14 @@ For MPMC use [[crossbeam-array-queue|crossbeam ArrayQueue]] or [[kanal]]; for me
 - [[thread-per-core]] mailbox between adjacent shards
 - Anywhere you can guarantee single-producer / single-consumer topology
 
+## Cross-language context
+
+Rust's SPSC ring buffers (rtrb, `ringbuffer-spsc`, `bounded-spsc-queue`) produce essentially identical machine code to C++ equivalents (Rigtorp's SPSCQueue, folly's ProducerConsumerQueue, atomic_queue's SPSC mode) and achieve comparable latencies. **Rust's advantage at this layer is safety, not speed**: the `Producer`/`Consumer` split in rtrb statically prevents SPSC violations at compile time, eliminating a bug class that has plagued C++ and Java lock-free code for decades. The Java analogue (JCTools' SpscArrayQueue) uses `Unsafe`-based field access to match native performance, also at ~50 ns/op. See [[mechanical-sympathy]] for why all three converge.
+
 ## See also
 
 - [[spsc-queue]] — the optimization techniques rtrb applies
 - [[ring-buffer]] — the underlying structure
 - [[the-fastest-queue]] — full hierarchy
+- [[inter-thread-communication]] — broader latency context
+- [[mechanical-sympathy]] — why language barely matters here

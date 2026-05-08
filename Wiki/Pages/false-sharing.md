@@ -5,7 +5,8 @@ tags:
   - architecture
 sources:
   - "Raw/Fastest CS/The fastest queue in all of computer science.md"
-last_updated: 2026-05-06
+  - "Raw/Fastest CS/The fastest ways to talk between threads.md"
+last_updated: 2026-05-07
 ---
 
 # False Sharing and the 128-Byte Rule
@@ -44,6 +45,20 @@ alignas(std::hardware_destructive_interference_size) std::atomic<size_t> head;
 
 `hardware_destructive_interference_size` is 128 on most modern x86 builds.
 
+## Per-language padding idioms
+
+Every fast queue in every language pads contended fields. The exact mechanism differs:
+
+| Language | Idiom |
+|----------|-------|
+| C++ | `alignas(std::hardware_destructive_interference_size)` (128 on most modern x86 builds), or `alignas(64)` for older code |
+| Rust | `#[repr(align(128))]`, or `crossbeam_utils::CachePadded<T>` |
+| Java | `@jdk.internal.vm.annotation.Contended` (JDK 8+, originally `@Contended` in `sun.misc`) |
+| Go | manual `_ [128]byte` padding fields between contended atomics |
+| C | `alignas(64)` from C11, or compiler-specific `__attribute__((aligned(128)))` |
+
+The languages that get this right by default are vanishingly few. Most lock-free libraries in every language ship a `CachePadded<T>` wrapper because the language's primitives don't ensure padding automatically.
+
 ## Empirical impact
 
 From the [[the-fastest-queue|fastest queue]] benchmarks comparing identical SPSC ring buffers with different padding:
@@ -71,3 +86,5 @@ Padding stops *spatial* sharing. Cache coherence costs from *temporal* sharing �
 - [[lmax-disruptor]] — mechanical sympathy gold standard for padding
 - [[ring-buffer]] — the structure most affected by false sharing
 - [[spsc-queue]] — where padding and shadow variables compound
+- [[memory-ordering]] — the orthogonal-but-related ordering question
+- [[inter-thread-communication]] — broader latency hierarchy

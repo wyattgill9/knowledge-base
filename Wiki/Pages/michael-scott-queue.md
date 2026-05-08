@@ -43,9 +43,14 @@ The Michael-Scott queue's core problem is the [[faa-vs-cas|CAS retry loop on a c
 
 For new code, prefer [[lcrq|LCRQ]] (x86) or [[scq|SCQ]]/[[lprq|LPRQ]] (portable). Even Java has JCTools' `MpmcArrayQueue` (~6.5× faster than `ConcurrentLinkedQueue`).
 
+## The bigger pattern
+
+The Michael-Scott queue is the [[harris-linked-list|Harris linked list]] of the queue world: textbook standard, structurally important, no longer the throughput leader. Both designs share the same retraversal-on-CAS-failure weakness; both were superseded by designs that either restructured the contention point ([[lcrq|LCRQ]]'s FAA-on-a-ring for queues, Träff-Pöter's `fetch_or` marking for lists) or abandoned the linked-list shape entirely. See [[fastest-linked-lists]] for the full lineage of "how linked-shaped concurrent structures got faster by becoming less linked-list-shaped."
+
 ## See also
 
 - [[lcrq]] — the FAA-on-a-ring design that obsoleted Michael-Scott for performance
 - [[faa-vs-cas]] — why CAS-retry is the wrong primitive for contention hotspots
 - [[mpmc-queue]] — modern landscape
 - [[the-fastest-queue]] — full hierarchy
+- [[harris-linked-list]] — sibling design for ordered sets, with the same retraversal weakness

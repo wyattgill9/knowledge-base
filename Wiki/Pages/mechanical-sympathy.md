@@ -6,7 +6,8 @@ tags:
 sources:
   - "Raw/Fastest CS/The fastest ways to talk between threads.md"
   - "Raw/Fastest CS/General.md"
-last_updated: 2026-05-07
+  - "Raw/Fastest CS/The fastest linked lists ever built.md"
+last_updated: 2026-05-08
 ---
 
 # Mechanical Sympathy
@@ -49,6 +50,18 @@ This is why optimization at the limits looks like:
 3. Accept the per-operation cost; it isn't going down.
 
 Step 2 is where mechanical sympathy lives. The cached-indices optimization in modern [[spsc-queue|SPSC]] queues converts ~3 cache-coherence transactions per push to ~1 per N pushes, a 20× speedup. The [[faa-vs-cas|FAA-over-CAS]] insight converts O(log N) coherence round-trips per increment under contention to O(1). [[flat-combining]] amortizes a single lock acquisition across N pending operations.
+
+## The 125× linked-list result
+
+The cleanest single demonstration of the principle, from Johnny's Software Lab — traversal of 64M doubles through the same logical linked list with three different memory layouts:
+
+| Layout | Time | Speed |
+|--------|------|-------|
+| Random (naive `malloc`) | 15.0 s | 1× |
+| Compact (pool, unordered) | 9.7 s | 1.5× |
+| Perfect (sequential order) | **0.12 s** | **125×** |
+
+Identical code, identical algorithm, identical instruction count — the only difference is whether the hardware prefetcher can stream the data. A 99% L3 miss rate becomes ~zero misses. This is mechanical sympathy reduced to its smallest possible expression: the same program runs 125× faster when the data layout matches the access pattern. See [[fastest-linked-lists]] for what the field built on top of this finding.
 
 ## When mechanical sympathy fails
 

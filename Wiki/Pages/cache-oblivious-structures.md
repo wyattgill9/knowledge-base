@@ -5,7 +5,8 @@ tags:
   - architecture
 sources:
   - "Raw/Fastest CS/General.md"
-last_updated: 2026-04-17
+  - "Raw/Fastest CS/The fastest ordered maps in computer science.md"
+last_updated: 2026-05-08
 ---
 
 # Cache-Oblivious Data Structures
@@ -16,11 +17,11 @@ Data structures that optimize for every cache level simultaneously without knowi
 
 The foundational technique: recursively split a tree and lay subtrees contiguously in memory. A balanced binary tree of height h is split at height h/2, placing the top half first, then each bottom subtree contiguously. Applied recursively, this achieves optimal O(log_B N) memory transfers for search, where B is the (unknown) cache line size.
 
-This layout underpins **cache-oblivious B-trees** (Bender, Demaine, Farach-Colton) — B-tree performance without needing to tune the node size to the cache line.
+This layout underpins **cache-oblivious B-trees** (Bender, Demaine, Farach-Colton) — B-tree performance without needing to tune the node size to the cache line. In practice tuned cache-conscious designs ([[abseil-flat-hash-map|Abseil]] `btree_map`, [[algorithmica-s-tree]], [[bs-tree]]) consistently outperform cache-oblivious variants — the asymptotic optimality is real but constants prefer designs that know B. See [[fastest-ordered-maps]].
 
 ## Cache-oblivious lookahead arrays (COLAs)
 
-COLAs showed **790x faster** than [[b-tree|B-trees]] for large random insertions. They use a series of sorted arrays of exponentially increasing size (1, 2, 4, 8, ...) with a merge-based insertion strategy. Insertions are amortized O((log² N)/B) memory transfers — dramatically better than B-trees for write-heavy workloads.
+COLAs showed **790x faster** than [[b-tree|B-trees]] for large random insertions. They use a series of sorted arrays of exponentially increasing size (1, 2, 4, 8, ...) with a merge-based insertion strategy. Insertions are amortized O((log² N)/B) memory transfers — dramatically better than B-trees for write-heavy workloads. The same buffering principle, parameterized rather than cache-oblivious, produces the [[b-epsilon-tree|Bε-tree]] (32× fewer write I/Os than B-trees at typical settings) and underlies modern LSM-tree variants.
 
 ## Practical significance
 

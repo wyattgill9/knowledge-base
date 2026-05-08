@@ -8,7 +8,8 @@ sources:
   - "Raw/Rust/The blazingly fast Rust crate stack for 2025–2026.md"
   - "Raw/Fastest CS/The fastest hash map in computer science, 2025.md"
   - "Raw/Fastest CS/The fastest queue in all of computer science.md"
-last_updated: 2026-05-06
+  - "Raw/Fastest CS/The fastest ordered maps in computer science.md"
+last_updated: 2026-05-08
 ---
 
 # Rust Concurrent Data Structures
@@ -46,5 +47,15 @@ When you want raw FIFO without blocking/notification overhead:
 | [[rtrb]] | SPSC, wait-free | ~7 ns/op, 520M+ ops/s on Apple M4 | Real-time / audio DSP |
 | [[crossbeam-array-queue\|crossbeam ArrayQueue]] | Bounded MPMC | ~10× rtrb on 4 producers | Vyukov-style |
 | `crossbeam::queue::SegQueue` | Unbounded MPMC | Slower, allocates | Chunked linked list |
+
+## Concurrent ordered maps
+
+For ordered (sorted-key) concurrent access, the Rust ecosystem has historically lagged: `std::collections::BTreeMap` is single-threaded, and wrapping it in `RwLock` collapses under contention.
+
+| Crate | Design | Best for |
+|---|---|---|
+| [[congee]] | Rust port of [[art-olc\|ART-OLC]] | Concurrent point ops on integer/fixed keys; **150 Mops/sec at 32 cores** |
+
+The C++ state of the art is [[bp-tree|BP-Tree]] for range scans, [[masstree]] for string keys at high contention, [[art-olc|ART-OLC]] for integer point ops; only the last has a production-quality Rust port. The lock-free [[bw-tree]] would be a poor target for porting — it loses to all three by 1.5–4.5×. See [[fastest-ordered-maps]].
 
 **Where Rust sits globally for queues.** Rust has no native [[lcrq|LCRQ]], [[scq|SCQ]], [[lprq|LPRQ]], or [[wcq|wCQ]] port as of 2025. The closest ecosystem equivalents are Vyukov-style ring buffers in `crossbeam-queue`. C++ has the full lineage (Pedro Ramalhete's reference LCRQ, [[atomic-queue]], [[moodycamel-concurrent-queue]]); Java got LCRQ-class designs via JCTools and the [[lmax-disruptor]]. For applications that need 100+ thread MPMC at the C++ throughput ceiling, this is a real gap. For the 4–32 thread range where most Rust services live, `ArrayQueue` and the channel libraries are competitive. See [[the-fastest-queue]] for the broader picture.

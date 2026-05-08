@@ -1,5 +1,69 @@
 # Log
 
+## [2026-05-08] ingest | The fastest linked lists ever built
+- Source: `Raw/Fastest CS/The fastest linked lists ever built.md`
+- Created (10 pages):
+  - [[fastest-linked-lists]] (source summary — 125× memory-layout result, plf::list, unrolled tier, intrusive tier, lock-free lineage, GPU slab lists, when linked lists win)
+  - [[plf-list]] — Matt Bentley's drop-in std::list replacement; 333% faster insert, 6,500% faster clear; standard's O(1) splice requirement actively prevents std::list from matching
+  - [[intrusive-list]] — Linux kernel list.h pattern; 5–29× over std::list via zero allocation and shared cache lines; Linus removed prefetch() in 2.6.40 because hardware prefetchers were better
+  - [[unrolled-linked-list]] — m elements per cache-line-sized node; 60% fewer misses, 2–4× traversal; concurrent variant (Platz et al. JPDC 2020) 300% over alternatives; DULL (OPODIS 2024) for persistent memory
+  - [[vector-backed-list]] — index-based linking inside a std::vector; jsl::vector_list 7.8× with compaction; orx-linked-list 25× over Rust's std::collections::LinkedList; GlueList beats even ArrayList
+  - [[harris-linked-list]] — 2001 marked-pointer logical-deletion design; Träff-Pöter (2020) `fetch_or` marking + approximate backward pointers; VBL (PaCT 2021) provably concurrency-optimal
+  - [[slab-list]] — GPU warp-cooperative design (Ashkiani IPDPS 2018); 512M updates/s on Tesla K40c via coalesced 32-thread access
+  - [[hazard-pointers]] — Maged Michael's bounded-memory reclamation; standardized in C++26; complement to EBR for stalled-thread tolerance
+  - [[crystalline-reclamation]] — PLDI 2024; wait-free reclamation with bounded memory simultaneously, previously thought impossible
+  - [[persistent-functional-list]] — singly-linked cons list with structural sharing; Haskell/Clojure backbone; lock-free reads via immutability; the rank-1 case of the persistent-collection design philosophy
+- Updates (4 pages):
+  - [[fastest-data-structures]] — added linked-list and lock-free ordered linked list rows; refreshed sources
+  - [[crossbeam-epoch]] — promoted from a paragraph to a full reclamation-landscape entry; added EBR-vs-hazard-pointers-vs-Crystalline trade-off table
+  - [[michael-scott-queue]] — added "the bigger pattern" section pairing Michael-Scott with Harris as twin retraversal-on-CAS-failure designs both superseded by the same insight
+  - [[mechanical-sympathy]] — added the 125× memory-layout benchmark as the cleanest single demonstration of the principle (identical code, identical algorithm, layout alone moves runtime 125×)
+- Index: added 10 new entries
+- Key insight: **the fastest "linked lists" no longer look like linked lists.** Every winner in the hierarchy — [[plf-list]] (block allocation), [[unrolled-linked-list]] (cache-line-sized array nodes), [[vector-backed-list]] (index-based linking inside a contiguous buffer), [[intrusive-list]] (pointers embedded in the data), [[slab-list]] (warp-aligned slabs) — fights the same fight: make node memory layout match access order. The 2024 "RIP Linked List" paper's ArrayBlock structure beats every linked-list variant *even on benchmarks designed to favor linked lists*. The "linked list" name is increasingly archaeological. Integrated as the central thread of [[fastest-linked-lists]] and reinforced in [[fastest-data-structures]].
+- Secondary insight: **memory reclamation is the dominant cost factor** for lock-free linked structures, often beating the algorithmic cost. The 2024 [[crystalline-reclamation|Crystalline]] result — wait-free reclamation with bounded memory simultaneously — joins [[elastic-hashing]] and [[fastest-ordered-maps|the optimistic-locking-beats-lock-freedom result]] as 2024–2026 "settled lower bound was wrong" results. C++26 standardizing [[hazard-pointers]] is the production-side counterpart: a primitive long confined to per-runtime libraries is now in the standard. Integrated into [[crossbeam-epoch]] as a full landscape page.
+- Tertiary insight: **the same retraversal-on-CAS-failure weakness defines both [[michael-scott-queue|Michael-Scott]] and [[harris-linked-list|Harris]]** — the queue and the ordered-set instances of the lock-free linked list. Both got fixed by the same insight: replace contended CAS with `fetch_and_add` ([[lcrq|LCRQ]] for queues) or `fetch_or` (Träff-Pöter for ordered sets). The structural symmetry deepens [[faa-vs-cas]] as the dominant lever in concurrent linked-shape design.
+- Open questions:
+  - When does [[crystalline-reclamation|Crystalline]] reach production runtimes? folly, JCTools, and crossbeam are the natural integration points; the algorithm is published, the integration work is the bottleneck.
+  - Will Linus's "no software prefetch" rule for kernel list.h hold against [[fastest-linked-lists|Linkey]] (2025)? Linkey uses compiler-provided structural hints rather than naive prefetch — the failure mode that motivated the 2.6.40 removal is exactly what Linkey claims to fix.
+  - Does the Harris-Träff-Pöter design family port cleanly to Rust? `crossbeam-skiplist` exists but a full Träff-Pöter ordered concurrent linked list does not — the gap mirrors the missing Rust [[lcrq]] / [[wcq]] ports.
+  - For [[persistent-functional-list|persistent functional lists]] specifically, do modern allocators ([[mimalloc]], [[jemalloc]]) close the gap to contiguous structures enough that pure-functional code is competitive on cache-bound traversal? The traditional answer is no; the [[fastest-dynamic-arrays|allocator-dominates-container]] insight from the 2026-05-04 ingest suggests it's worth re-measuring.
+
+## [2026-05-08] ingest | The fastest ordered maps in computer science
+- Source: `Raw/Fastest CS/The fastest ordered maps in computer science.md`
+- Created (13 pages):
+  - [[fastest-ordered-maps]] (source summary — single-threaded tier list, concurrent landscape, theoretical bounds, 2024–2026 frontier)
+  - [[algorithmica-s-tree]] — Slotin's reference SIMD B-tree; 7–18× over std::set in <150 lines C++; AVX2 branchless intra-node search, compile-time height, hugepages
+  - [[bs-tree]] — ICDE 2026 AVX-512 B-tree; 16 keys/node in 2 instructions; gapped nodes for branchless updates (lifts the static-only restriction)
+  - [[fb-plus-tree]] — VLDB 2025 SIMD B+-tree for variable-length keys via byte-wise prefix matching with AVX-512
+  - [[bp-tree]] — VLDB 2023 concurrent B+-tree with OLC; 7.4× Masstree on points, 30× on range scans
+  - [[art-olc]] — ART with optimistic lock coupling; 4.8× fewer instructions and 3.6× fewer L3 misses than lock-coupled B+-trees; readers never write shared cache lines
+  - [[congee]] — Rust port of ART-OLC; 150 Mops/sec on 32 cores; closest Rust gets to global concurrent-ordered-map frontier
+  - [[masstree]] — trie-of-B+-trees; cache-craftiness readers; best for string keys at high contention; 6–10 Mops/sec on 16 cores YCSB
+  - [[bw-tree]] — lock-free B+-tree (MSR ICDE 2013); 1.5–4.5× *slower* than alternatives because lock-freedom ≠ cache-coherence-freedom; the 2018 OpenBw-Tree result
+  - [[hot-trie]] — Height Optimized Trie (Binna et al., SIGMOD 2018); varies bits per node by distribution; beats ART/B-tree/Masstree on string keys
+  - [[cuckoo-trie]] — 2021 trie exploiting memory-level parallelism for 20–360% gains via independent miss streams
+  - [[b-epsilon-tree]] — fractal tree index; 32× fewer write I/Os than B-trees; TokuDB lineage; principle survives in LSM variants
+  - [[van-emde-boas-tree]], [[fusion-tree]] — theoretical sub-logarithmic curiosities; lose to tuned B-trees on real hardware
+- Major rewrites (2 pages):
+  - [[b-tree]] — promoted from a paragraph-and-table page to a full ordered-map landscape entry; added SIMD-tier hierarchy, concurrent variants section, write-optimized variants section, decision guide
+  - [[adaptive-radix-tree]] — added O(k) lookup framing as the defining property; concurrent ART-OLC section; HOT/Cuckoo Trie/learned-index frontier; expanded comparisons
+- Updates (5 pages):
+  - [[learned-indexes]] — added LITS (2024) for learned models on HOT tries (2.4× over HOT) — current frontier for learned string indexing
+  - [[fastest-data-structures]] — refreshed ordered-container row to point to BS-tree/Algorithmica S+; added concurrent-ordered-map row; added "optimistic readers that never write shared memory" as a fifth core principle alongside FAA-over-CAS
+  - [[swiss-table]] — wikified BS-tree and FB+-tree as further demonstrations of SIMD-parallel scanning beyond hash maps
+  - [[simd-programming]] — refreshed B-tree row with BS-tree AVX-512 detail; added FB+-tree row
+  - [[cache-oblivious-structures]] — added explicit "tuned cache-conscious beats cache-oblivious in practice" note; added Bε-tree as the parameterized COLA descendant
+  - [[rust-concurrent-data-structures]] — added concurrent ordered maps section anchored on Congee; positioned C++ frontier (BP-Tree, Masstree, ART-OLC) for context
+- Index: added 13 new entries; revised b-tree, adaptive-radix-tree descriptions
+- Key insight: **lock-freedom is not cache-coherence-freedom**. The lock-free [[bw-tree]] loses 1.5–4.5× to lock-using designs because every CAS dirties a shared cache line, generating coherence traffic that dwarfs the cost of the locks it avoids. [[art-olc]] and [[masstree]] win precisely because their version-counter readers write *nothing* to shared memory. This is the same insight behind [[rcu]] (zero read-side overhead), [[faa-vs-cas|FAA-over-CAS]] in queues (FAA's success-on-first-try beats CAS retry), and [[swiss-table]]'s read-only metadata scans. Integrated as a fifth core principle in [[fastest-data-structures]] and as a recurring thread across the new concurrent-ordered-map pages.
+- Secondary insight: **the practical winners are all the same recipe**. SIMD-parallel intra-node scanning + cache-line-sized contiguous nodes + branch elimination produces the entire Tier 1 list — Algorithmica S+, BS-tree, FB+-tree — and the 7–18× gap to red-black trees is fully explained by ~6× fewer cache misses, ~3× more keys per cycle, and ~10× fewer branch mispredictions. The theoretical sub-logarithmic structures (Van Emde Boas, fusion trees) lose because their constants drown in the 100 ns reality of a single cache miss. Integrated into [[fastest-ordered-maps]] and reinforced in [[b-tree]].
+- Tertiary insight: **memory-level parallelism is an under-used lever**. The [[cuckoo-trie]] gets 20–360% over state-of-the-art by issuing independent memory accesses per lookup rather than serializing them through pointer chasing. Most published indexes assume the cost model is "instructions" or "cache lines touched," but on real hardware the cost is closer to "longest dependency chain of misses." The same observation explains why [[swiss-table]] group probing and [[lcrq|LCRQ]] FAA producers beat their dependency-chained alternatives.
+- Open questions:
+  - When does a Rust port of [[bp-tree|BP-Tree]] or [[masstree]] arrive? [[congee]] covers the integer-keyed point-op tier but the Rust ecosystem has no equivalent for range-scan-heavy or string-keyed concurrent ordered workloads.
+  - Will LITS (learned models on HOT) hold up under broader benchmarking? 2.4× over HOT is striking; if it survives independent reproduction, it suggests learned indexing applies more broadly than the original numerical-key work indicated.
+  - Does the [[bs-tree|BS-tree]]'s gapped-node design extend cleanly to concurrent operation? The gap reservation is exactly the kind of slot that an OLC-style concurrent insert wants — there's a natural composition with [[art-olc]]'s reader-version protocol.
+  - What is AMD's answer to Intel CLDEMOTE? With 3D V-Cache pushing L3 to 96–128 MB, the boundary between "fits in L3" and "spills to DRAM" is moving — but only Intel currently has an instruction to actively place data in shared cache.
+
 ## [2026-05-07] ingest | The fastest ways to talk between threads
 - Source: `Raw/Fastest CS/The fastest ways to talk between threads.md`
 - Created (9 pages):

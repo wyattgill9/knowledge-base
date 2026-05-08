@@ -8,7 +8,9 @@ sources:
   - "Raw/Fastest CS/The fastest hash map in computer science, 2025.md"
   - "Raw/Fastest CS/The fastest dynamic arrays in computer science.md"
   - "Raw/Fastest CS/The fastest queue in all of computer science.md"
-last_updated: 2026-05-06
+  - "Raw/Fastest CS/The fastest ordered maps in computer science.md"
+  - "Raw/Fastest CS/The fastest linked lists ever built.md"
+last_updated: 2026-05-08
 ---
 
 # Fastest Data Structures in Computer Science
@@ -21,8 +23,11 @@ A benchmarked survey of the fastest known implementations across ten major data 
 |----------|----------|---------------|
 | Dynamic arrays | C `realloc` + [[mimalloc]]/[[jemalloc]]; [[folly-fbvector]] in C++ | [[realloc-mremap\|mremap]] enables O(1) growth without copying; [[fastest-dynamic-arrays]] |
 | Hash maps | [[swiss-table]] variants — [[boost-unordered-flat-map]] leads, [[abseil-flat-hash-map]] close second, [[hashbrown]] in Rust | SIMD-parallel metadata probing, 16 slots in ~3 instructions |
-| Ordered containers | [[b-tree]] (not red-black trees) | 3–18x faster due to cache-line-sized nodes, 6x lower tree height |
-| Tries & strings | [[adaptive-radix-tree]] | Four adaptive node sizes with SIMD search, path compression |
+| Ordered containers | [[bs-tree]] / [[algorithmica-s-tree]] (SIMD [[b-tree]]) | 7–18× over `std::map`; 16 keys/node in 2 AVX-512 instructions; [[fastest-ordered-maps]] |
+| Concurrent ordered maps | [[art-olc]] / [[bp-tree]] / [[masstree]] | OLC readers never write shared cache lines; lock-free [[bw-tree]] is 1.5–4.5× *slower* |
+| Linked lists (single-threaded) | [[plf-list]] / [[vector-backed-list]] / [[intrusive-list]] | Block allocation, contiguous index linking, embedded pointers; up to **125× over naive layouts**; [[fastest-linked-lists]] |
+| Lock-free ordered linked lists | [[harris-linked-list\|Harris-Träff-Pöter]] / VBL | `fetch_or` marking removes the CAS-retry retraversal cost |
+| Tries & strings | [[adaptive-radix-tree]], [[hot-trie]] | Four adaptive node sizes with SIMD search; HOT varies bits per node by distribution |
 | Heaps | [[d-ary-heap]] (d=4) | Wider fanout reduces cache misses; 17–30% faster than binary heaps |
 | Sequential sort | [[pdqsort]] | Linear on presorted data, heapsort worst-case guarantee, branchless variant |
 | Parallel sort | [[ips4o]] | 1.5x faster than next sequential, 3x faster than next parallel competitor |
@@ -45,9 +50,11 @@ A benchmarked survey of the fastest known implementations across ten major data 
 
 **[[faa-vs-cas|FAA over CAS]] at contention hotspots.** The principle that obsoleted the [[michael-scott-queue]] and produced [[lcrq|LCRQ]], [[scq|SCQ]], [[lprq|LPRQ]], and [[wcq|wCQ]]: CAS-retry melts down under contention while FAA always succeeds. At 144 threads: FAA ~40 ns vs CAS ~75 ns. Combined with the [[false-sharing|128-byte cache-line rule]], this is the dominant lever in concurrent data structure design.
 
+**Optimistic readers that never write shared memory.** The same insight at the ordered-map layer: [[art-olc|ART-OLC]] and [[masstree]] beat the lock-free [[bw-tree]] by 1.5–4.5× because lock-freedom is not cache-coherence-freedom. Version-counter validation lets unbounded reader counts share clean cache lines. This unifies [[rcu]], FAA-over-CAS, and modern concurrent ordered maps into a single design discipline: avoid writes to shared cache lines on the hot path.
+
 ## The practical default stack
 
-Use [[boost-unordered-flat-map]] or [[abseil-flat-hash-map]] for C++ hash maps ([[hashbrown]] in Rust). Note: in many workloads the *hash function* (foldhash, rapidhash) matters more than the table — see [[fastest-hash-map-2025]]. Use [[b-tree]] variants for ordered containers. Use [[d-ary-heap]] for priority queues. Use [[ips4o]] for parallel sorting. Use [[binary-fuse-filter]] for set membership. Use [[csr-graph]] for graph analytics. For concurrent hash maps at scale, [[parlayhash]] hits 1,130 Mops at 128 threads. For concurrent queues, [[lcrq|LCRQ]] + [[aggregating-funnels]] is the strict-FIFO MPMC ceiling; [[lmax-disruptor]] still wins for bounded pipeline tail latency; for read-dominated workloads [[rcu]] remains hard to beat. The most exciting frontier — [[learned-indexes]] — is already delivering production wins and may fundamentally reshape database indexing.
+Use [[boost-unordered-flat-map]] or [[abseil-flat-hash-map]] for C++ hash maps ([[hashbrown]] in Rust). Note: in many workloads the *hash function* (foldhash, rapidhash) matters more than the table — see [[fastest-hash-map-2025]]. Use [[abseil-flat-hash-map|Abseil]] `btree_map` for production ordered containers; reach for [[bs-tree]] / [[algorithmica-s-tree]] / [[fb-plus-tree]] when squeezing the last 7–18× matters; reach for [[adaptive-radix-tree|ART]] / [[hot-trie|HOT]] for in-memory database indexes — see [[fastest-ordered-maps]]. Use [[d-ary-heap]] for priority queues. Use [[ips4o]] for parallel sorting. Use [[binary-fuse-filter]] for set membership. Use [[csr-graph]] for graph analytics. For concurrent hash maps at scale, [[parlayhash]] hits 1,130 Mops at 128 threads. For concurrent queues, [[lcrq|LCRQ]] + [[aggregating-funnels]] is the strict-FIFO MPMC ceiling; [[lmax-disruptor]] still wins for bounded pipeline tail latency; for read-dominated workloads [[rcu]] remains hard to beat. The most exciting frontier — [[learned-indexes]] — is already delivering production wins and may fundamentally reshape database indexing.
 
 ## Allocation and memory layout
 

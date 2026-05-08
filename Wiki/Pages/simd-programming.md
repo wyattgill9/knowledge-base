@@ -19,7 +19,8 @@ Single Instruction, Multiple Data — the hardware capability that consistently 
 |-----------|---------------|---------|
 | [[swiss-table]] hash maps | Parallel H2 fingerprint matching across 16 slots | 3x over `std::unordered_map` |
 | [[adaptive-radix-tree]] Node16 | SSE comparison of all 16 keys simultaneously | Enables adaptive node design |
-| [[b-tree]] (Algorithmica S+) | Branchless SIMD binary search within nodes | 18x over `std::set` |
+| [[b-tree]] (Algorithmica S+, [[bs-tree]]) | Branchless SIMD search within nodes; AVX-512 16 keys/node in 2 instructions | 7–18× over `std::set` |
+| [[fb-plus-tree]] | AVX-512 byte-wise prefix matching for variable-length keys | Closes SIMD gap to tries |
 | [[binary-fuse-filter\|Blocked Bloom]] | AVX2 checks all hash positions in one cache line | Fastest query throughput |
 | [[simdjson]] | AVX2 structural character classification, 32–64 bytes/iter | 4x RapidJSON, 25x nlohmann |
 | [[soa-vs-aos\|SoA]] layouts | Direct vector loads from contiguous typed arrays | Up to 12.7x over AoS |

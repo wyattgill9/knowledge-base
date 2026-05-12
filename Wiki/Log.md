@@ -1,5 +1,40 @@
 # Log
 
+## [2026-05-11] ingest | Modern C++ Design Patterns (C++23 and Beyond)
+- Source: `Raw/C++/Modern C++ Design Patterns (C++23 and Beyond).md`
+- Created (16 pages):
+  - [[modern-cpp-design-patterns]] (source summary — the ten patterns, three philosophical shifts, C++26 as the bigger leap, convergence-with-Rust framing)
+  - [[deducing-this]] — C++23 `this auto&&` explicit object parameters; CRTP killer; recursive lambdas trivial; collapses the four-way ref-qualified accessor overload set
+  - [[std-expected]] — C++23 monadic Result type; `and_then` / `transform` / `or_else`; 1–2% overhead on success path vs 50–100× exception cost; the open frontier of context-attachment libraries
+  - [[std-generator]] — C++23 coroutine-based lazy sequences; HALO heap-elision in Clang/GCC; the boilerplate-deleting case study
+  - [[std-mdspan]] — C++23 non-owning multidim view; `layout_left`/`layout_right`/custom layouts; the Kokkos-team-designed primitive
+  - [[if-consteval]] — C++23 statement-form compile-time/runtime branch; replaces the `is_constant_evaluated()` trap
+  - [[std-move-only-function]] — C++23 move-only type-erased callable; `function_ref` (C++26) for non-owning case; collapses Strategy/Command/Observer
+  - [[cpp26-static-reflection]] — `^T` operator, splicers, `template for`; replaces macros/codegen for serialization/ORM/RPC; read-only (no metaclasses until C++29)
+  - [[senders-receivers]] — C++26 `std::execution` (P2300); structured lifetimes, cancellation propagation, scheduler-agnostic algorithms; CUDA's `cuda::std::execution`
+  - [[overloaded-visit-pattern]] — `std::visit` + variadic `overloaded` lambda set; compile-time exhaustiveness; until `inspect` (P2688, now targeting C++29) ships
+  - [[cpp26-contracts]] — `pre`/`post`/`contract_assert`; three semantics (ignore/observe/enforce); optimizer assumption propagation; P2900 accepted
+  - [[crtp]] — Curiously Recurring Template Pattern; historical CRTP page; the cases where it still wins (Eigen-style expression templates, sizeof-dependent layouts)
+  - [[cpp-coroutines]] — the library-customizable coroutine machinery underlying generator and senders; cppcoro, folly::coro, libunifex, stdexec ecosystem
+  - [[railway-oriented-programming]] — Wlaschin's metaphor; the cross-language consensus (Rust Result, C++ expected, Swift, Kotlin); the stack-trace trap and context-attachment problem
+  - [[design-by-contract]] — Meyer/Eiffel lineage; the Liskov connection; refinement types as the static-proof alternative; the slow-uptake question
+  - [[structured-concurrency]] — Nathaniel Smith's 2018 framing; "go statement considered harmful"; the implementations across Kotlin, Swift, Trio, Rust JoinSet, C++ senders
+- Updated (4 pages):
+  - [[rust-error-handling]] — opened with cross-language convergence framing; std::expected mirror, shared open problem of pipeline context attachment
+  - [[type-driven-development]] — added "cross-language convergence" section pairing each Rust technique with its C++23/26 counterpart; added C++ source
+  - [[expert-rust-design]] — added closing paragraph on philosophical convergence with [[modern-cpp-design-patterns]]; added C++ source
+  - [[seastar]] — added lineage paragraph: Seastar's continuation-style futures → libunifex → P2300 → C++26 senders/receivers
+- Index: added 16 new entries
+- Key insight: **C++23/26 is the C++ side of the same convergence Rust drove a decade ago.** Read the ten patterns and the parallels are unmistakable — `std::expected` is `Result<T, E>`, `std::generator` is a Rust generator block, `std::move_only_function` is `Box<dyn FnOnce>`, `std::visit` + `overloaded` is `match`, contracts echo typestate/newtype discipline. The convergence is on the same answers (value semantics, sum types, monadic error flow, structured concurrency, compile-time metaprogramming) because those answers are correct. Each language retains a durable advantage: C++ ships zero overhead by default; Rust ships the borrow checker. Integrated as the closing framing of [[modern-cpp-design-patterns]] and as cross-language sections in [[type-driven-development]] and [[expert-rust-design]].
+- Secondary insight: **C++26 is the bigger leap than C++23.** C++23 mostly refines (`expected`, `generator`, `mdspan`, `move_only_function`, `if consteval`); C++26 introduces categorical shifts — [[cpp26-static-reflection]] eliminates macro/codegen serialization, [[senders-receivers]] replaces the patchwork of `std::async`/`std::future`/executor-libraries with structured concurrency, [[cpp26-contracts]] adds Design-by-Contract as a language feature with optimizer integration. Together they pull C++ much closer to Rust/Swift/Kotlin in expressiveness while keeping its zero-overhead default.
+- Tertiary insight: **CRTP is the cleanest "language feature retires a pattern" case study.** Three decades of canonical idiom, taught as a C++ rite of passage, retired by a single C++23 feature ([[deducing-this]]) — with a small residual surface (Eigen-style expression templates, sizeof-dependent base layouts) where it still wins. This is the same lifecycle as `auto_ptr` → `unique_ptr`, callback-driven function pointers → lambdas/`move_only_function`, `enable_if` SFINAE → concepts. The lesson: durable C++ design lives in principles (zero-cost abstraction, static polymorphism, value semantics), and idioms come and go as the language absorbs the workarounds they represented.
+- Open questions:
+  - When does the C++ analog of [[snafu]] / [[anyhow]] / [[error-stack]] emerge for `std::expected`? The error-context-attachment problem that Rust solved across 2018–2022 is the open frontier in C++ as of 2026. `tl::expected` lacks the idioms; P2952 extensions are not shipped.
+  - Will `inspect` (P2688 pattern matching) land in C++29 as currently scheduled, and will it cleanly subsume the [[overloaded-visit-pattern]]? Early proposals look promising but the C++26 cutoff slip suggests further slippage is possible.
+  - When does the third-party scheduler ecosystem for [[senders-receivers]] mature? io_uring senders, Asio interop, file I/O senders are not in the standard; libunifex and stdexec provide them but adoption is early. The structural similarity to [[shard-per-core-runtimes-compared|shard-per-core Rust runtimes]] suggests a similar landscape of competing schedulers — worth tracking whether `cuda::std::execution` (the GPU showcase) drives convergence or fragmentation.
+  - Does the [[cpp26-contracts]] optimizer-integration story hold up in production? The bet that *cheap, optional, optimizer-aware* contracts can clear the adoption bar that mandatory Eiffel-style contracts couldn't — early data is from 2027–2028.
+  - How does the [[cpp26-static-reflection|reflection]]-based serialization layer interact with C++ modules? Modules' translation-unit boundaries change reflection's reach across compilation units in subtle ways. The proposal addresses this but real-world implications won't be clear until both features ship and are exercised together.
+
 ## [2026-05-08] ingest | The fastest linked lists ever built
 - Source: `Raw/Fastest CS/The fastest linked lists ever built.md`
 - Created (10 pages):

@@ -8,12 +8,15 @@ sources:
   - "Raw/Rust/Comparative Deep Research on Rust Error-Handling Crates, Including Snafu.md"
   - "Raw/Rust/Modern Rust - the definitive 2023–2026 feature and idiom guide.md"
   - "Raw/Rust/What A+ Rust design actually looks like.md"
-last_updated: 2026-04-17
+  - "Raw/C++/Modern C++ Design Patterns (C++23 and Beyond).md"
+last_updated: 2026-05-11
 ---
 
 # Rust Error Handling
 
 The Rust error-handling ecosystem has converged into four complementary layers rather than a single "best crate." A key enabler: **`Error` moved to `core`** in Rust 1.81 (September 2024), enabling `no_std` error types without external crates — see [[modern-rust-features]]. The fundamental organizing principle is a two-layer architecture: typed errors for libraries, type-erased reports for applications. Within each layer, the key strategic choice is string context (fast, flexible, opaque) vs structured context (more modeling upfront, better debugging at scale). See [[rust-error-crate-comparison]] for the detailed comparative analysis.
+
+The underlying algebra — `Result<T, E>` as a sum type with monadic composition — is now the cross-language consensus. C++23's [[std-expected|`std::expected<T, E>`]] is the direct mirror, with `.and_then()` / `.transform()` / `.or_else()` paralleling Rust's combinators almost verbatim. Both languages adopted the same [[railway-oriented-programming]] discipline at roughly the same time, and the same open problem — how to attach context across a pipeline so the final error carries a useful trail — applies to both. Rust's answer is the four-layer architecture below; C++ has not yet settled on an equivalent and its ecosystem is the open frontier as of 2026.
 
 ## Layer 1: Typed error definition (libraries)
 

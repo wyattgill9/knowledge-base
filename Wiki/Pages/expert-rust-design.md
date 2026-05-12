@@ -5,7 +5,8 @@ tags:
   - design-patterns
 sources:
   - "Raw/Rust/What A+ Rust design actually looks like.md"
-last_updated: 2026-04-16
+  - "Raw/C++/Modern C++ Design Patterns (C++23 and Beyond).md"
+last_updated: 2026-05-11
 ---
 
 # Expert Rust Design
@@ -39,3 +40,5 @@ The seven compile-time techniques from [[type-driven-development]] form the foun
 ## The deepest insight
 
 The crates that define Rust's ecosystem — serde, tokio, axum, bevy — share architectural DNA: [[facade-crate-pattern|facade crates]] over modular workspaces, trait-driven extensibility, derive macros for ergonomics, and feature flags for compile-time modularity. The highest-quality Rust code is not the cleverest — it's the code where the type system does the thinking, the compiler does the checking, and the developer does the designing.
+
+The same design philosophy now shapes C++. The [[modern-cpp-design-patterns]] catalog — [[std-expected]], [[overloaded-visit-pattern]], [[cpp26-contracts]], [[cpp26-static-reflection]], [[senders-receivers]] — is the C++ side of the same convergence: push invariants into the type system, prefer value semantics over inheritance, compose at compile time. Reading both surfaces side-by-side makes the underlying principles visible — neither language is the source, and the discipline is portable.

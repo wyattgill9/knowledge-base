@@ -7,7 +7,8 @@ tags:
 sources:
   - "Raw/Rust/Type Driven Development in Rust.md"
   - "Raw/Rust/What A+ Rust design actually looks like.md"
-last_updated: 2026-04-17
+  - "Raw/C++/Modern C++ Design Patterns (C++23 and Beyond).md"
+last_updated: 2026-05-11
 ---
 
 # Type Driven Development
@@ -97,3 +98,15 @@ Encode **structural** invariants (state machines, required fields, protocol comp
 - Luca Palmieri, *Zero to Production in Rust* (domain invariants chapter)
 
 See [[expert-rust-design]] for how these techniques manifest across every dimension of production Rust — API surface design, crate architecture, error handling, and performance.
+
+## Cross-language convergence
+
+The methodology is no longer Rust-specific. C++23 and C++26 are converging on the same answers from a different starting point — see [[modern-cpp-design-patterns]]. The closest direct parallels:
+
+- **Sum types** — Rust `enum` ≈ C++ `std::variant` with [[overloaded-visit-pattern]] for compile-time exhaustive dispatch.
+- **Monadic error flow** — Rust `Result<T, E>` ≈ C++ [[std-expected|`std::expected<T, E>`]], both implementing [[railway-oriented-programming]].
+- **Value-level predicates** — Rust validation in constructors ≈ C++ [[cpp26-contracts|`pre`/`post` contracts]], with [[design-by-contract]] as the shared lineage.
+- **Compile-time metaprogramming** — Rust `derive` macros ≈ C++ [[cpp26-static-reflection|static reflection]] (`^T`, splicers), both replacing macro/codegen layers.
+- **Structured concurrency** — Rust `JoinSet` / async scoping ≈ C++ [[senders-receivers|`std::execution`]], with [[structured-concurrency]] as the shared discipline.
+
+The methodologies are converging because the answers are converging: types as specifications, errors as values, concurrency as structured composition, metaprogramming as compile-time reflection. Rust's borrow checker remains its distinct contribution; C++'s zero-overhead-by-default remains the C++ side of the bargain.
